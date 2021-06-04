@@ -1,0 +1,58 @@
+<%
+this.adminPage = 'enable_user';
+%>
+<% include admin_header %>
+<table class="ui center aligned celled table">
+<thead>
+  <tr>
+    <th>用户名</th>
+    <th width="50px">启用</th>
+  </tr>
+</thead>
+
+<tbody>
+  <% for (let i = 0; i < users.length; i++) { %>
+    <%
+    if(!users[i].is_banned){
+        continue;
+    }
+    %>
+    <tr>
+      <td><%=users[i].username%></td>
+      <td>
+        <a onclick="$('#modal-remove-<%= i %>').modal('show');" style="color: #000; " href="#"><i class="add icon"></i></a>
+        <div class="ui basic modal" id="modal-remove-<%= i %>">
+          <div class="ui icon header">
+            <i class="add icon"></i>
+            <p style="margin-top: 15px; ">启用用户</p>
+          </div>
+          <div class="content" style="text-align: center; ">
+            <p>确认启用该用户吗？</p>
+          </div>
+          <div class="actions">
+            <div class="ui red basic cancel inverted button">
+              <i class="remove icon"></i>
+              否
+            </div>
+            <a class="ui green ok inverted button remove_link" data-id="<%= users[i].id %>">
+              <i class="checkmark icon"></i>
+              是
+            </a>
+          </div>
+        </div>
+      </td>
+    </tr>
+  <% } %>
+</tbody>
+</table>
+
+
+<script>
+$('.remove_link').click(function () {
+  let id=$(this).data('id');
+  $('.remove_link').click(function () {
+    $.post("/admin/enable_user", { id: id } );
+  });
+});
+</script>
+<% include admin_footer %>

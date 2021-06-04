@@ -1,0 +1,106 @@
+<% this.title = '统计信息 - ' + contest.title %>
+<% include header %>
+<% const seeRanklist = true; %>
+<style>
+    .submit_time {
+        font-size: 0.8em;
+        margin-top: 5px;
+        color: #000;
+    }
+    .ui.label.pointing.below.left::before { left: 12%; }
+    .ui.label.pointing.below.right::before { left: 88%; }
+    .ui.label.pointing.below.left { margin-bottom: 0; }
+    .ui.label.pointing.below.right { margin-bottom: 0; float: right; }
+    #back_to_contest { display: none;  }
+</style>
+<div class="padding">
+    <div class="ui error message" id="error" hidden></div>
+    <h1><%= contest.title %></h1>
+    <div style="margin-bottom: 30px;"><%- contest.subtitle %></div>
+    <% let unveiled = (isSupervisior || syzoj.utils.getCurrentDate() >= contest.start_time); %>
+    <% const seeResult = (isSupervisior || contest.ended); %>
+    <% let start = syzoj.utils.formatDate(contest.start_time), end = syzoj.utils.formatDate(contest.end_time); %>
+    <% if (contest.running && start.split(' ')[0] === end.split(' ')[0]) {
+        start = start.split(' ')[1]; end = end.split(' ')[1];
+    } %>
+    <div class="ui pointing below left label"><%= start %></div>
+    <div class="ui pointing below right label"><%= end %></div>
+    <% let timePercentage = Math.floor(Math.min(1, (syzoj.utils.getCurrentDate() - contest.start_time) / (contest.end_time - contest.start_time)) * 100); %>
+    <div id="timer-progress" class="ui tiny indicating progress<% if (timePercentage == 100) { %> success<% } %>" data-percent="<%= timePercentage %>">
+        <div class="bar" style="width: <%= timePercentage %>%;"></div>
+    </div>
+
+    <div class="ui grid">
+        <% include contest_header.ejs %>
+        <% const statistics = contest.statistics ? contest.statistics : {}%>
+        <% for(let problem of problems){ %>
+        <div class="row">
+            <div class="column">
+                <h4 class="ui top attached block header"><%= problem.title%></h4>
+                <div class="ui bottom attached segment font-content inline fields">
+                    <div class="ui form problem_desc">
+                        <% let problem_statistics = statistics[problem.id] ? statistics[problem.id] : {} %>
+                        <input type="hidden" name="problem_id" value="<%= problem.id %>">
+                        <div class="field">
+                            <label>来源</label>
+                            <input type="text" name="source" value="<%= problem_statistics.source %>">
+                        </div>
+                        <div class="field">
+                            <label>类型</label>
+                            <input type="text" name="type" value="<%= problem_statistics.type %>">
+                        </div>
+                        <div class="field">
+                            <label>简介</label>
+                            <input type="text" name="introduce" value="<%= problem_statistics.introduce %>">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% }%>
+        <button type="button" class="ui button" onclick="submit()">提交</button>
+    </div>
+</div>
+<script type="text/javascript">
+function show_error(error) {
+    $("#error").text(error);
+    $("#error").show();
+}
+
+function submit(){
+    let statistics = {};
+    $('.problem_desc').each(function(key,value){
+        let problem_id = $(this).find("input[name='problem_id']").val();
+        statistics[problem_id] = {
+            source: $(this).find("input[name='source']").val(),
+            type: $(this).find("input[name='type']").val(),
+            introduce: $(this).find("input[name='introduce']").val()
+        }
+    });
+    // console.info(statistics);
+
+    $.ajax({
+        url: "<%= syzoj.utils.makeUrl(['contest', contest.id, 'statistics'])%>",
+        type: 'POST',
+        data: {
+            "statistics": statistics,
+            "_csrf": document.head.getAttribute('data-csrf-token')
+        },
+        async: true,
+        success: function(data) {
+            if(data.error_code){
+                show_error(data.message);
+            }else if(data.error_code === 0){
+                window.location.reload();
+            }else{
+                show_error("未知错误");
+            }
+        },
+        error:  function(XMLHttpRequest, textStatus, errorThrown) {
+            show_error("未知错误");
+        }
+    });
+
+}
+</script>
+<% include footer %>

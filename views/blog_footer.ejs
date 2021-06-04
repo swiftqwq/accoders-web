@@ -1,0 +1,20 @@
+</div>
+<% 
+var date = new Date();
+var yearStr=date.getFullYear();
+ %> 
+<div class="ui vertical footer segment" style="margin-top: 15px; ">
+  <div class="ui center aligned container">
+    <span style="color: #999;">如无特殊说明，本页所有内容采用 <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/deed.zh">CC BY-NC-ND 4.0</a> 进行许可.</span>
+    <br>
+    <span style="color: #999;">@2020~<%=yearStr%> <a href="https://oj.zhangyiming.tech/user/<%=owner.id%>"><%=owner.username%> </a>All Right Reserved.</span>
+    <br>
+    <span style="color: #999;"><%= syzoj.config.title %> Powered by <a href="https://github.com/syzoj/syzoj" target="_blank">SYZOJ</a> | <a href="https://gitee.com/swift-zym/accoders" target="_blank">开源项目</a>.</span>
+  </div>
+</div>
+</div>
+<script data-cfasync="false" src="<%- lib('semantic-ui/2.4.1/semantic.min.js') %>"></script>
+<script src="<%- lib('Chart.js/2.7.3/Chart.bundle.min.js') %>"></script>
+<script src="<%- selfLib('script.js') %>?20170710"></script>
+</body>
+</html>

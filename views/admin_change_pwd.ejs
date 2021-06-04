@@ -1,0 +1,78 @@
+<%this.adminPage = 'change_pwd'; %>
+<% include admin_header %>
+<div class="inline field">
+    <!--<div class="ui fluid input inline field">-->
+        <!--<label style="line-height: 37.8px; width: 70px; font-weight: normal; ">用户名</label>-->
+        <!--<input type="text" id="user_id">-->
+    <!--</div>-->
+
+    <div class="ui fluid input inline field">
+        <label style="line-height: 37.8px; width: 75px; font-weight: normal; ">用户名</label>
+        <select class="ui fluid search dropdown" multiple="" id="user_id">
+            <% for (let admin of admins) { %>
+            <option value="<%= admin.id %>" selected><%= admin.username %></option>
+            <% } %>
+        </select>
+    </div>
+
+    <div class="ui fluid input inline field">
+        <label style="line-height: 37.8px; width: 70px; font-weight: normal; ">密 码</label>
+        <input type="password" id="password" value="123456">
+        <label style="line-height: 37.8px; font-weight: inherit;">默认123456</label>
+    </div>
+
+    <div class="ui fluid input inline field" style="padding-top: 20px">
+        <button class="ui blue button" onclick="submit()">提交</button>
+    </div>
+</div>
+
+<form method="post" id="submit_form">
+    <input type="hidden" name="data" id="submit_data">
+</form>
+
+<script src="/libs/blueimp-md5/js/md5.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $('#user_id')
+            .dropdown({
+                debug: true,
+                apiSettings: {
+                    url: '/api/v2/search/users/{query}',
+                    onResponse: function (response) {
+                        var a = $('#user_id').val().map(function (x) {
+                            return parseInt(x)
+                        });
+                        if (response.results) {
+                            response.results = response.results.filter(function (x) {
+                                return !a.includes(parseInt(x.value))
+                            });
+                        }
+                        return response;
+                    },
+                    cache: false
+                }
+            });
+    });
+
+    function make_md5(tag) {
+        if (tag.val()) {
+            tag.val(md5(tag.val() + "syzoj2_xxx"));
+        }
+    }
+
+    function submit() {
+        var user_id = $("#user_id").val();
+        var password = $("#password");
+        alert(user_id);
+        if(!user_id || user_id.length < 1 || !password){
+            alert("用户名和密码不能为空!");
+            return false;
+        }
+        make_md5(password);
+        var data = {user_id: user_id, password: password.val()};
+        $('#submit_data').val(JSON.stringify(data));
+        $('#submit_form').submit();
+    }
+</script>
+
+<% include admin_footer %>

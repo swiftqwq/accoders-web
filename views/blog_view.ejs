@@ -1,0 +1,86 @@
+<% this.title = article.title; %>
+<% include blog_header %>
+<div class="ui center aligned grid">
+    <div class="row">
+      <h1 class="ui header">
+          <%=article.title%>
+      </h1>
+    </div>
+    <div class="row" style="margin-top: -15px">
+        <span class="ui label">作者：<%= owner.username %></span>
+        <span class="ui label">发布时间：<%= syzoj.utils.formatDate(article.public_time) %></span>
+        <span class="ui label">最后编辑时间：<%= syzoj.utils.formatDate(article.update_time) %></span>
+    </div>
+</div>
+<div class="ui divider"></div>
+
+<div class="ui grid">
+    <div class="row">
+      <div class="column">
+          <div class="ui buttons right floated">
+            <% if (user && (user.is_admin || user.id==owner.id)) {%>
+              <a style="margin-top: -4px; " class="ui mini right floated labeled icon button" href="<%= syzoj.utils.makeUrl(['article', article.id, 'edit'],{is_blog:1}) %>"><i class="ui edit icon"></i>编辑</a>
+              <a style="margin-top: -4px; margin-right: 3px; " class="ui mini red right floated labeled icon button" onclick="$('#modal-delete').modal('show')"><i class="ui trash icon"></i>删除</a>
+              <div class="ui basic modal right floated" id="modal-delete">
+                <div class="ui icon header">
+                  <i class="trash icon"></i>
+                  <p style="margin-top: 15px; ">删除文章</p>
+                </div>
+                <div class="content" style="text-align: center; ">
+                  <p>确认删除这篇文章吗？</p>
+                </div>
+                <div class="actions">
+                  <div class="ui red basic cancel inverted button">
+                    <i class="remove icon"></i>
+                    否
+                  </div>
+                  <a class="ui green ok inverted button" href-post="<%= syzoj.utils.makeUrl(['article', article.id, 'delete']) %>">
+                    <i class="checkmark icon"></i>
+                    是
+                  </a>
+                </div>
+              </div>
+            <% } %>
+          </div>
+      </div>
+    </div>
+    <article>
+      <%- article.content %>
+    </article>
+</div>
+<% if (!isOJ) { %>
+<br>
+<div class="ui blue message">
+  本界面评论仅供查看，发表评论请点击下方"查看原文"。
+</div>
+<br>
+<a href="https://oj.zhangyiming.tech/user/<%=owner.id%>/blog/<%=article.id%>">查看原文</a>
+<% } %>
+<script>
+  renderMathInElement(document.body,{
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false}
+              ]
+          }
+  );
+</script>
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+<div id="gitalk-container"></div>   
+<% if(typeof(enable_gitalk) !== undefined) {%>  
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+    // gitalk的主要参数
+      clientID: `7f7a6b2a96600e7af945`,   //上面获取到的值
+      clientSecret: `26b39801c6747f1c760a52f9acab58f8af0414b0`,//上面获取到的值
+      repo: `accoders-comment`,  //您刚才建立仓库的名字
+      owner: 'swift-zym',   //你的GitHub用户名字
+      admin: ['swift-zym'],  //你的GitHub用户的名字
+      id: '<%=article.id%>', //id不能重复，如果重复就会把其他页面的评论引进来
+      title: '<%=article.title%>',
+    });
+    gitalk.render('gitalk-container');
+</script>
+<% } %>
+<% include blog_footer %>

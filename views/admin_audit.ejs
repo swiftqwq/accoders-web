@@ -1,0 +1,78 @@
+<%
+this.adminPage = 'audit';
+let columns = ['ID', '用户名', '真实姓名', '注册时间', '状态', '操作'];
+let _STATUS = ['待审核', '正常', '审核未通过', '禁用'];
+let COLORS = ['orange', 'green', 'gray', 'red'];
+%>
+<% include admin_header %>
+<div class="one fields">
+    <div class="field">
+        <label>状态</label>
+        <div class="ui selection dropdown">
+            <input type="hidden" id="type" value="<%= type%>">
+            <i class="dropdown icon"></i>
+            <div class="default text"></div>
+            <div class="menu">
+                <div class="item" data-value="all">不限</div>
+                <div class="item" data-value="0">待审核</div>
+                <div class="item" data-value="1">审核通过</div>
+                <div class="item" data-value="2">未通过</div>
+                <div class="item" data-value="3">禁用</div>
+                <div class="item" data-value="4">已锁定</div>
+            </div>
+        </div>
+        <button class="ui button" onclick="query()">查询</button>
+    </div>
+</div>
+
+<table class="ui center aligned celled table">
+    <thead>
+    <tr>
+        <% for (let name of columns) { %>
+        <th><%= name %></th>
+        <% } %>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% for (let user of users) { %>
+    <tr>
+        <td width="5%"><%= user.id %></td>
+        <td width="20%"><%= user.username %></td>
+        <td width="20%"><%= user.real_name %></td>
+        <td width="20%"><%= syzoj.utils.formatDate(user.register_time) %></td>
+        <td width="15%" style="color:<%= COLORS[user.status]%>"><%= _STATUS[user.status] %></td>
+        <td>
+            <% if(user.status == 0){ %><button class="ui button green" onclick="submit('<%= user.id%>', 1)">通过</button><%}%>
+            <% if(user.status == 0){ %><button class="ui button red" onclick="submit('<%= user.id%>', 2)">拒绝</button><%}%>
+            <% if(user.status == 1){ %><button class="ui button gray" onclick="submit('<%= user.id%>', 3)">禁用</button><%}%>
+            <% if(user.status == 2 || user.status == 3 || user.status == 4){ %><button class="ui button yellow" onclick="submit('<%= user.id%>', 1)">恢复</button><%}%>
+        </td>
+    </tr>
+    <% } %>
+    </tbody>
+</table>
+
+<form method="post" id="submit_form" action="/admin/audit">
+    <input type="hidden" name="data" id="submit_data">
+</form>
+
+<script type="text/javascript">
+    $(function () {
+        $('.ui.dropdown').dropdown();
+    });
+
+    function query(){
+        var type = $("#type").val();
+        window.location.href = "/admin/audit/"+type;
+    }
+
+    function submit(user_id, type) {
+        var _type = "<%=type%>";
+        var data = {user_id: user_id, type: type, _type: _type};
+        $('#submit_data').val(JSON.stringify(data));
+        $('#submit_form').submit();
+    }
+</script>
+
+<% include admin_footer %>

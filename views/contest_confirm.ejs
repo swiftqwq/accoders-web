@@ -1,0 +1,45 @@
+<% this.title = '进入比赛';  %>
+<% include header %>
+<% if (fail){%>
+<div class="ui red message">
+  密码错误！
+</div>
+<% } %>
+<div class="ui middle aligned center aligned grid">
+  <div class="row">
+    <div class="column" style="max-width: 450px">
+      <h2 class="ui image header">
+        <div class="content">
+          比赛密码确认
+        </div>
+      </h2>
+      <form class="ui large form" id="resetForm">
+        <div class="ui existing segment">
+            <div class="field">
+                <div class="ui left icon input">
+                    <i class="lock icon"></i>
+                    <input type="password" placeholder="密码" id="password">
+                </div>
+            </div>
+            <button class="ui fluid large submit button" id="go">进入</div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script src="<%- lib('blueimp-md5/2.10.0/js/md5.min.js') %>"></script>
+<script type="text/javascript">
+function showMessage(content) {
+    $("#msgContent").text(content);
+    $("#msgBox").show();
+}
+function submitForm() {
+    window.location.replace("/contest/<%=id%>/access?back=<%=back%>&password="+$("#password").val());
+}
+$(document).ready(function() {
+    $("#go").click(function(event) {
+        submitForm();
+        event.preventDefault();
+    });
+});
+</script>

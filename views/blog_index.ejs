@@ -1,0 +1,60 @@
+<% this.title=owner.username+"'s Blog" %>
+<% include blog_header %>
+<% if (user && (user.is_admin || user.id==owner.id)) {%>
+  <div class="row">
+    <div class="column">
+        <div class="ui buttons right floated">
+          <a style="margin-left: 10px; " href="<%= syzoj.utils.makeUrl(['article', 0, 'edit'], {is_blog:1}) %>" class="ui labeled icon mini button">
+            <i class="write icon"></i>
+            新建文章
+          </a>
+        </div>
+      </div>
+  </div>
+<% } %>
+<% 
+var tot=0;
+ %> 
+<div class="ui three cards">
+    <% for(let article of articles){ %>
+        <% 
+        if(!article.is_blog)continue;
+        tot+=1;
+        %>
+        <% if(isOJ) { %>
+        <div class="<%=isDark?"balck ":""%>card"  onclick="window.open('/user/<%=owner.id%>/blog/<%=article.id%>','_self')">
+        <% } else { %>
+        <div class="<%=isDark?"balck ":""%>card"  onclick="window.open('/<%=article.id%>','_self')">
+        <% } %>
+            <div class="image">
+              <% if (article.image_url){ %>
+              <img src="<%=article.image_url%>">
+              <% } else { %>
+              <img src="https://api.dujin.org/bing/1366.php">
+              <% } %>
+            </div>
+            <div class="content">
+              <div class="header"><%=article.title%></div>
+              <div class="meta">
+                <a>文章</a>
+              </div>
+              <% 
+              let previewStr=article.content.split("<!--more-->")[0];
+              %> 
+              <div class="description"><%=previewStr.substring(0,Math.min(40,previewStr.length))%>...</div>
+            </div>
+            <div class="extra content">
+              <span>发布于  <%=syzoj.utils.formatDate(article.public_time)%></span>
+            </div>
+          </div>
+    <% } %>
+</div>
+<% if(tot==0){%>
+  <div class="ui placeholder segment">
+    <div class="ui icon header">
+      <i class="list icon" style="margin-bottom: 20px; "></i>
+      暂无博客
+    </div>
+  </div>
+<% } %>
+<% include blog_footer %>

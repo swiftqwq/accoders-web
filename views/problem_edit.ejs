@@ -1,0 +1,262 @@
+<% this.title = '编辑题目'; %>
+<% include header %>
+<style type="text/css">
+    .problem_header{
+        text-align: center;
+    }
+</style>
+<div class="padding">
+    <form class="ui form" method="post" action="<%= syzoj.utils.makeUrl(['problem', req.params.id, 'edit']) %>">
+        <div class="ui top attached tabular menu">
+            <a class="item active" data-tab="edit">编辑</a>
+            <a class="item" data-tab="preview" id="preview_tab">预览</a>
+        </div>
+        <div class="ui bottom attached tab segment active" data-tab="edit">
+            <div class="field">
+                <% if (problem.allowedManage) { %>
+                    <label for="id">
+                        <% if (problem.new) { %>
+                            题目编号
+                        <% } else { %>
+                            修改题目编号
+                        <% } %>
+                    </label>
+                    <input type="text" id="id" name="id" placeholder="<% if (problem.new) { %>留空则自动延伸<% } else { %>留空则不修改<% } %>" value="<%= problem.id ? problem.id : '' %>">
+
+                    <div style="margin-top: 15px; "></div>
+                <% } %>
+
+                <label for="title">题目名称</label>
+                <input class="font-content" type="text" id="title" name="title" value="<%= problem.title %>">
+                <div style="margin-top: 15px; "></div>
+
+                <div class="two fields">
+                    <div class="field">
+                        <label for="doc-ds-ipt-1">时间限制（单位: ms）</label>
+                        <input type="number" name="time_limit" value="<%= problem.time_limit %>">
+                    </div>
+                    <div class="field">
+                        <label for="doc-ds-ipt-1">内存限制（单位: MiB）</label>
+                        <input type="number" name="memory_limit" value="<%= problem.memory_limit %>">
+                    </div>
+                </div>
+                <label style="margin-top: 15px; " for="description">题目描述</label>
+                <img id="img" src="" alt="">
+                <textarea class="font-content" rows="15" id="description" onpaste="paste_listener(event, this)" name="description"><%= problem.description %></textarea>
+                <label style="margin-top: 15px; " for="input_format">输入格式</label>
+                <textarea class="font-content" rows="10" id="input" onpaste="paste_listener(event, this)" name="input_format"><%= problem.input_format %></textarea>
+                <label style="margin-top: 15px; " for="output_format">输出格式</label>
+                <textarea class="font-content" rows="10" id="output" onpaste="paste_listener(event, this)" name="output_format"><%= problem.output_format %></textarea>
+                <label style="margin-top: 15px; ">样例</label>
+                <textarea class="font-content" rows="15" id="example" onpaste="paste_listener(event, this)" name="example"><%= problem.example %></textarea>
+                <label style="margin-top: 15px; ">数据范围与提示</label>
+                <textarea class="font-content" rows="10" id="hint" onpaste="paste_listener(event, this)" name="limit_and_hint"><%= problem.limit_and_hint %></textarea>
+                <label style="margin-top: 15px; ">标签</label>
+                <select class="ui fluid search dropdown" multiple="" id="search_tags" name="tags">
+                    <% for (let tag of problem.tags) { %>
+                        <option value="<%= tag.id %>" selected><%= tag.name %></option>
+                    <% } %>
+                </select>
+
+                <label style="margin-top: 15px; ">OJ&题号</label>
+                <div class="inline fields" style="margin-bottom: 25px; white-space: nowrap; ">
+                    <label style="margin-top: 15px; ">OJ：</label>
+                    <div class="field">
+                        <div class="ui fluid selection dropdown" id="select_type" style="width: 110px; ">
+                            <input type="hidden" name="type" value="<%= problem.type %>">
+                            <i class="dropdown icon"></i>
+                            <div class="default text"></div>
+                            <div class="menu">
+                                <div class="item" data-value="">NULL</div>
+                                <div class="item" data-value="poj">POJ</div>
+                                <div class="item" data-value="hdu">HDU</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label style="font-size: 1.2em; margin-right: 1px; ">题号：</label>
+                    <div class="field"><input name="outer_id" style="width: 100px; " type="text" value="<%= problem.outer_id %>"></div>
+                </div>
+
+                <div class="ui <% if (problem.is_anonymous) { %>checked <% } %>checkbox" style="margin-top: 15px; ">
+                    <input <% if (problem.is_anonymous) { %>checked=""<% } %> name="is_anonymous" type="checkbox">
+                    <label><strong>匿名上传</strong></label>
+                    <p style="margin-top: 5px; ">选择后，上传者的用户名将不在题目页面中显示。</p>
+                </div>
+            </div>
+        </div>
+        <div class="ui bottom attached tab segment" data-tab="preview" id="preview">
+            <h1 class="ui header problem_header" id="pv-title"></h1>
+            <h2 class="ui header">题目描述</h2>
+            <div class="font-content" id="pv-description"></div>
+            <h2 class="ui header">输入格式</h2>
+            <div class="font-content" id="pv-input"></div>
+            <h2 class="ui header">输出格式</h2>
+            <div class="font-content" id="pv-output"></div>
+            <h2 class="ui header">样例</h2>
+            <div class="font-content" id="pv-example"></div>
+            <h2 class="ui header">数据范围与提示</h2>
+            <div class="font-content" id="pv-hint"></div>
+        </div>
+        <% if (problem.allowedEdit) { %>
+            <button type="submit" class="ui button">提交</button>
+        <% } %>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $(function () {
+            $('#select_type').dropdown();
+        });
+        function render(output, input) {
+            $.post('/api/markdown', { s: input.val(), _csrf: document.head.getAttribute('data-csrf-token') }, function (s) {
+                // console.log(s);
+                output.html(s);
+            });
+        }
+        $("#preview_tab").click(function () {
+            $("#pv-title").text($("#title").val());
+            $("#pv-description, #pv-input, #pv-output, #pv-example, #pv-hint").text('Loading...');
+            render($("#pv-description"), $("#description"));
+            render($("#pv-input"), $("#input"));
+            render($("#pv-output"), $("#output"));
+            render($("#pv-example"), $("#example"));
+            render($("#pv-hint"), $("#hint"));
+        });
+        $('.tabular.menu .item').tab();
+    });
+</script>
+<script>
+    $(function () {
+        $('#search_tags')
+            .dropdown({
+                debug: true,
+                apiSettings: {
+                    url: '/api/v2/search/tags/{query}',
+                    onResponse: function (response) {
+                        var a = $('#search_tags').val().map(function (x) { return parseInt(x) });
+                        if (response.results) {
+                            response.results = response.results.filter(function(x) { return !a.includes(parseInt(x.value));});
+                        }
+                        return response;
+                    },
+                    cache: false
+                }
+            });
+    });
+</script>
+<script type="text/javascript">
+    $(function(){
+        //阻止浏览器默认行。
+        $(document).on({
+            dragleave:function(e){    //拖离
+                e.preventDefault();
+            },
+            drop:function(e){  //拖后放
+                e.preventDefault();
+            },
+            dragenter:function(e){    //拖进
+                e.preventDefault();
+            },
+            dragover:function(e){    //拖来拖去
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('description').addEventListener("drop", drop_event, false); //拖拽区域
+        document.getElementById('input').addEventListener("drop", drop_event, false); //拖拽区域
+        document.getElementById('output').addEventListener("drop", drop_event, false); //拖拽区域
+        document.getElementById('hint').addEventListener("drop", drop_event, false); //拖拽区域
+        document.getElementById('example').addEventListener("drop", drop_event, false); //拖拽区域
+
+        function drop_event(e) {
+            var self = this;
+            e.preventDefault(); //取消默认浏览器拖拽效果
+            var fileList = e.dataTransfer.files; //获取文件对象
+            //检测是否是拖拽文件到页面的操作
+            if(fileList.length == 0){
+                return false;
+            }
+            //检测文件是不是图片
+            if(fileList[0].type.indexOf('image') === -1){
+                alert("您拖的不是图片！");
+                return false;
+            }
+
+            //拖拉图片到浏览器，可以实现预览功能
+//            var img = window.URL.createObjectURL(fileList[0]);
+//            var filename = fileList[0].name; //图片名称
+            var filesize = Math.floor((fileList[0].size)/1024);
+            if(filesize>500){
+                alert("上传大小不能超过500K.");
+                return false;
+            }
+
+            var formData = new FormData();
+            formData.append('file', fileList[0]);
+
+            $.ajax({
+                url: '/problem/upload',
+                type: 'post',
+                dataType: 'json',
+                cache: false,
+                data: formData,
+                processData: false,
+                contentType: false,
+            })
+                .done(function(data) {    //上传成功
+                    if(data.success == true){
+                        console.log("success");
+                        var filename = data.url;
+                        self.value += `![image](/${filename})`;
+                    }else{
+                        console.log("fail");
+                        alert(data.message);
+                        console.log(data.message);
+                    }
+                })
+                .fail(function() {
+                    console.log("GG,failed");
+                    alert("无法连接服务器!!!");
+                })
+                .always(function() {
+                    console.log("complete");
+                });
+        }
+
+    });
+
+    function paste_listener(e, self){
+//        console.info("这是剪贴监听事件.");
+
+        if (event.clipboardData || event.originalEvent) {
+            var clipboardData = (event.clipboardData || event.originalEvent.clipboardData);
+            if(clipboardData.items){
+                var  blob;
+                for (var i = 0; i < clipboardData.items.length; i++) {
+                    if (clipboardData.items[i].type.indexOf("image") !== -1) {
+                        blob = clipboardData.items[i].getAsFile();
+                    }
+                }
+                var render = new FileReader();
+                render.onload = function (evt) {
+                    var base64 = evt.target.result;
+                    $.post("/problem/image_upload_base64",{_csrf: document.head.getAttribute('data-csrf-token'), base64str: base64}, function(data){
+//                        console.info(data);
+                        if(data.code != 0){
+                            alert(data.msg);
+                            return false;
+                        }
+                        var filename = data.filename;
+//                        console.info(filename);
+                        self.value += `![image](/${filename})`;
+                    });
+                    //document.getElementById('img').setAttribute('src',base64);
+                }
+                if(blob && blob != undefined)
+                    render.readAsDataURL(blob);
+            }
+        }
+    }
+</script>
+<% include footer %>

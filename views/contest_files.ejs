@@ -1,0 +1,273 @@
+<%
+this.title = '下发和题解';
+function getIcon(filename) {
+    let a = {
+        '.cpp': 'file code outline',
+        '.c': 'file code outline',
+        '.cs': 'file code outline',
+        '.pas': 'file code outline',
+        '.py': 'file code outline',
+        '.js': 'file code outline',
+        '.java': 'file code outline',
+        '.hs': 'file code outline',
+        '.vala': 'file code outline',
+        '.lua': 'file code outline',
+        '.rb': 'file code outline',
+        '.vb': 'file code outline',
+        '.ml': 'file code outline',
+        '.in': 'file text outline',
+        '.out': 'file text outline',
+        '.ans': 'file text outline',
+        '.txt': 'file text outline',
+        '.md': 'file text outline',
+        '.md': 'file text outline',
+        '.docx': 'file word outline',
+        '.odt': 'file word outline',
+        '.xlsx': 'file excel outline',
+        '.ods': 'file excel outline',
+        '.pptx': 'file powerpoint outline',
+        '.odp': 'file powerpoint outline',
+        '.zip': 'file archive outline',
+        '.7z': 'file archive outline',
+    }
+    for (let x in a) if (filename.endsWith(x)) return a[x];
+    return 'file outline';
+}
+%>
+<% include header %>
+<div class="padding">
+    <div class="ui grid">
+        <div class="eight wide column">
+            <h3 style="text-align: center; ">下发文件列表</h3>
+            <% if (!isPrivilege && contest.status == "waiting") { %>
+            <h4 style="text-align: center; " class="status wrong_answer">比赛未开始</h4>
+            <% }else if (issue_files) { %>
+            <table class="ui very basic center aligned table">
+                <thead>
+                <tr>
+                    <th class="left aligned">文件名</th>
+                    <th style="width: 100px">文件大小</th>
+                    <th style="width: 35px">下载</th>
+                    <% if (isPrivilege) { %>
+                    <th style="width: 35px">删除</th>
+                    <% } %>
+                </tr>
+                </thead>
+                <tbody>
+                <% let i = 0; %>
+                <% if (issue_files.files) for (let file of issue_files.files) { %>
+                <% i++; %>
+                <tr>
+                    <td class="left aligned"><i class="<%= getIcon(file.filename) %> icon"></i> <%= file.filename %></td>
+                    <td><%= syzoj.utils.formatSize(file.size) %></td>
+                    <td>
+                        <a style="color: #000; " href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'issue', 'download', file.filename]) %>">
+                            <i class="download icon"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a style="color: #000; " onclick="$('#modal-issue-delete-<%= i %>').modal('show')">
+                            <i class="remove icon"></i>
+                        </a>
+                        <div class="ui basic modal" id="modal-issue-delete-<%= i %>">
+                            <div class="ui icon header">
+                                <i class="trash icon"></i>
+                                <p style="margin-top: 15px; ">删除文件</p>
+                            </div>
+                            <div class="content" style="text-align: center; ">
+                                <p>确认删除「 <samp><%= file.filename %></samp> 」吗？</p>
+                            </div>
+                            <div class="actions">
+                                <div class="ui red basic cancel inverted button">
+                                    <i class="remove icon"></i>
+                                    否
+                                </div>
+                                <a class="ui green ok inverted button" href-post="<%= syzoj.utils.makeUrl(['contest', contest.id, 'issue', 'delete', file.filename]) %>">
+                                    <i class="checkmark icon"></i>
+                                    是
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <h4 style="text-align: center; ">无下发文件</h4>
+            <% } %>
+            <% if(isPrivilege){ %>
+            <form id="form_upload" class="ui form" action="<%= syzoj.utils.makeUrl(['contest', contest.id, 'issue', 'upload']) %>" method="post" enctype="multipart/form-data">
+                <div class="inline fields">
+                    <div class="field" style="margin: 0 auto; ">
+                        <label for="answer">上传文件（可一次性上传多个）</label>
+                        <input type="file" name="file" multiple id="upload_file">
+                        <div class="ui center aligned vertical segment" style="padding-bottom: 0; ">
+                            <div class="ui button" onclick="check_replace()">提交</div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <% } %>
+            <div class="ui basic modal" id="modal-replace">
+                <div class="ui icon header">
+                    <i class="refresh icon"></i>
+                    <p style="margin-top: 15px; ">替换文件</p>
+                </div>
+                <div class="content" style="text-align: center; ">
+                    <p>确认替换以下文件吗？</p>
+                    <div style="display: inline-block; text-align: left; " id="replaced_files"></div>
+                </div>
+                <div class="actions">
+                    <div class="ui red basic cancel inverted button">
+                        <i class="remove icon"></i>
+                        否
+                    </div>
+                    <a class="ui green ok inverted button" onclick="$('#form_upload').submit()">
+                        <i class="checkmark icon"></i>
+                        是
+                    </a>
+                </div>
+            </div>
+            <script>
+                function check_replace() {
+                    var old_files = <%- JSON.stringify((issue_files && issue_files.files ? issue_files.files : []).map(function(x) { return x.filename; })) %>;
+                    var replaced_files = Array.prototype.slice.call($('#upload_file')[0].files).map(function (x) { return x.name; }).filter(function (x) { return old_files.includes(x); });
+                    var s = '';
+                    for (let file of replaced_files) s += '<samp>' + file + '</samp><br>';
+                    if (s) {
+                        $('#replaced_files').html(s);
+                        $('#modal-replace').modal('show');
+                    } else {
+                        $('#form_upload').submit();
+                    }
+                }
+            </script>
+        </div>
+
+        <div class="eight wide column">
+            <h3 style="text-align: center; ">题解列表</h3>
+            <% if (!isPrivilege && contest.status == "waiting") { %>
+            <h4 style="text-align: center; " class="status wrong_answer">比赛未开始</h4>
+            <% }else if (!isPrivilege && contest.status == "running") { %>
+            <h4 style="text-align: center; " class="status wrong_answer">比赛未结束</h4>
+            <% }else if (solution_files) { %>
+            <table class="ui very basic center aligned table">
+                <thead>
+                <tr>
+                    <th class="left aligned">文件名</th>
+                    <th style="width: 100px">文件大小</th>
+                    <th style="width: 35px">下载</th>
+                    <% if (isPrivilege) { %>
+                    <th style="width: 35px">删除</th>
+                    <% } %>
+                </tr>
+                </thead>
+                <tbody>
+                <% if (solution_files.zip) { %>
+                <tr>
+                    <td class="left aligned"><i class="file archive outline icon"></i> 完整题解包</td>
+                    <td><%- !solution_files.zip.size ? '<i class="minus icon"></i>' : syzoj.utils.formatSize(solution_files.zip.size) %></td>
+                    <td><a style="color: #000; " href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'solution', 'download']) %>"><i class="download icon"></i></td>
+                    <td><i class="minus icon"></i></td>
+                </tr>
+                <% } %>
+                <% let i = 0; %>
+                <% if (solution_files.files) for (let file of solution_files.files) { %>
+                <% i++; %>
+                <tr>
+                    <td class="left aligned"><i class="<%= getIcon(file.filename) %> icon"></i> <%= file.filename %></td>
+                    <td><%= syzoj.utils.formatSize(file.size) %></td>
+                    <td>
+                        <a style="color: #000; " href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'solution', 'download', file.filename]) %>">
+                            <i class="download icon"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a style="color: #000; " onclick="$('#modal-solution-delete-<%= i %>').modal('show')">
+                            <i class="remove icon"></i>
+                        </a>
+                        <div class="ui basic modal" id="modal-solution-delete-<%= i %>">
+                            <div class="ui icon header">
+                                <i class="trash icon"></i>
+                                <p style="margin-top: 15px; ">删除文件</p>
+                            </div>
+                            <div class="content" style="text-align: center; ">
+                                <p>确认删除「 <samp><%= file.filename %></samp> 」吗？</p>
+                            </div>
+                            <div class="actions">
+                                <div class="ui red basic cancel inverted button">
+                                    <i class="remove icon"></i>
+                                    否
+                                </div>
+                                <a class="ui green ok inverted button" href-post="<%= syzoj.utils.makeUrl(['contest', contest.id, 'solution', 'delete', file.filename]) %>">
+                                    <i class="checkmark icon"></i>
+                                    是
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <h4 style="text-align: center; ">无题解文件</h4>
+            <% } %>
+            <% if(isPrivilege){ %>
+            <form id="form_upload2" class="ui form" action="<%= syzoj.utils.makeUrl(['contest', contest.id, 'solution', 'upload']) %>" method="post" enctype="multipart/form-data">
+                <div class="inline fields">
+                    <div class="field" style="margin: 0 auto; ">
+                        <label for="answer">上传文件（可一次性上传多个）</label>
+                        <input type="file" name="file" multiple id="upload_file">
+                        <div class="ui center aligned vertical segment" style="padding-bottom: 0; ">
+                            <div class="ui button" onclick="check_replace_solution()">提交</div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <% } %>
+            <div class="ui basic modal" id="modal-replace2">
+                <div class="ui icon header">
+                    <i class="refresh icon"></i>
+                    <p style="margin-top: 15px; ">替换文件</p>
+                </div>
+                <div class="content" style="text-align: center; ">
+                    <p>确认替换以下文件吗？</p>
+                    <div style="display: inline-block; text-align: left; " id="replaced_files2"></div>
+                </div>
+                <div class="actions">
+                    <div class="ui red basic cancel inverted button">
+                        <i class="remove icon"></i>
+                        否
+                    </div>
+                    <a class="ui green ok inverted button" onclick="$('#form_upload2').submit()">
+                        <i class="checkmark icon"></i>
+                        是
+                    </a>
+                </div>
+            </div>
+            <script>
+                function check_replace_solution() {
+                    var old_files = <%- JSON.stringify((solution_files && solution_files.files ? solution_files.files : []).map(function(x) { return x.filename; })) %>;
+                    var replaced_files2 = Array.prototype.slice.call($('#upload_file')[0].files).map(function (x) { return x.name; }).filter(function (x) { return old_files.includes(x); });
+                    var s = '';
+                    for (let file of replaced_files2) s += '<samp>' + file + '</samp><br>';
+                    if (s) {
+                        $('#replaced_files2').html(s);
+                        $('#modal-replace2').modal('show');
+                    } else {
+                        $('#form_upload2').submit();
+                    }
+                }
+            </script>
+        </div>
+
+        <div class="sixteen wide column">
+            <div class="ui center aligned vertical segment" style="padding-bottom: 0; ">
+                <a href="<%= syzoj.utils.makeUrl(['contest', contest.id]) %>" class="ui blue button">返回比赛</a>
+            </div>
+        </div>
+    </div>
+</div>
+<% include footer %>

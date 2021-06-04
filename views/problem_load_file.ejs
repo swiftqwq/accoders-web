@@ -1,0 +1,27 @@
+<% this.title = '导入题目'; %>
+<% include header %>
+<div class="padding">
+  <div style="margin-bottom: 30px; ">
+    <h1 style="margin-bottom: 10px; ">导入题目</h1>
+    从数据包导入题目。
+  </div>
+
+  <!--form class="ui form" enctype="multipart/form-data" action="<%= syzoj.utils.makeUrl(['problem', problem.id, 'load_file']) %>" method="post"-->
+  <form class="ui form" method="post" enctype="multipart/form-data">
+      <% if (problem.allowedManage || true) { %>
+          <div class="field">
+              <label>题目编号</label>
+              <input type="text" name="id" value="<%= problem.id ? problem.id : '' %>" placeholder="必须填写" <%= problem.new ? '' : 'disabled' %>>
+          </div>
+      <% } %>
+      <div class="field">
+        <label for="data">上传文件包(zip格式)</label>
+        <input type="file" id="data" name="data">
+      </div>
+      <div style="text-align: center; ">
+      <button type="submit" class="ui labeled submit icon button">
+        <i class="icon edit"></i> 提交
+      </button>
+      </div>
+  </form>
+<% include footer %>

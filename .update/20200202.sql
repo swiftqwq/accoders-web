@@ -1,0 +1,1 @@
+alter table judge_state add column estimate int(3) default -1; -- 增加估分功能
