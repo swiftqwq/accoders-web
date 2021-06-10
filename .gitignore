@@ -73,3 +73,7 @@ uploads
 # macOS
 
 .DS_Store
+
+# config file
+
+config.json
