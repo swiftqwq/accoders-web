@@ -600,7 +600,7 @@ app.get('/contest/submission/:id', async (req, res) => {
       roughResult: getRoughResult(judge, displayConfig),
       code: (displayConfig.showCode && judge.problem.type !== 'submit-answer') ? judge.code.toString("utf8") : '',
       formattedCode: judge.formattedCode ? judge.formattedCode.toString("utf8") : null,
-      preferFormattedCode: res.locals.user ? res.locals.user.prefer_formatted_code : false,
+      preferFormattedCode: res.locals.user ? res.locals.user.prefer_dark_mode : false,
       detailResult: processOverallResult(judge.result, displayConfig),
       socketToken: (displayConfig.showDetailResult && judge.pending && judge.task_id != null) ? jwt.sign({
         taskId: judge.task_id,

@@ -51,8 +51,8 @@ export default class User extends Model {
   @TypeORM.Column({ nullable: true, type: "boolean", default: true })
   public_email: boolean;
 
-  @TypeORM.Column({ nullable: true, type: "boolean", default: true })
-  prefer_formatted_code: boolean;
+  @TypeORM.Column({ nullable: true, type: "boolean", default: false })
+  prefer_dark_mode: boolean;
 
   @TypeORM.Column({ nullable: true, type: "integer" })
   sex: number;
@@ -63,9 +63,9 @@ export default class User extends Model {
   @TypeORM.Column({ nullable: true, type: "integer" })
   register_time: number;
 
-  @TypeORM.Column({ nullable: false,default:true,type:"boolean"})
+  @TypeORM.Column({ nullable: false, default: true, type: "boolean" })
   is_banned: boolean;
-  
+
   static async fromEmail(email): Promise<User> {
     return User.findOne({
       where: {
@@ -90,11 +90,11 @@ export default class User extends Model {
 
   getQueryBuilderForACProblems() {
     return JudgeState.createQueryBuilder()
-                     .select(`DISTINCT(problem_id)`)
-                     .where('user_id = :user_id', { user_id: this.id })
-                     .andWhere('status = :status', { status: 'Accepted' })
-                     .andWhere('type != 1')
-                     .orderBy({ problem_id: 'ASC' })
+      .select(`DISTINCT(problem_id)`)
+      .where('user_id = :user_id', { user_id: this.id })
+      .andWhere('status = :status', { status: 'Accepted' })
+      .andWhere('type != 1')
+      .orderBy({ problem_id: 'ASC' })
   }
 
   async refreshSubmitInfo() {
@@ -173,10 +173,12 @@ export default class User extends Model {
     let addPrivileges = newPrivileges.filter(x => !oldPrivileges.includes(x));
 
     for (let privilege of delPrivileges) {
-      let obj = await UserPrivilege.findOne({ where: {
-        user_id: this.id,
-        privilege: privilege
-      } });
+      let obj = await UserPrivilege.findOne({
+        where: {
+          user_id: this.id,
+          privilege: privilege
+        }
+      });
 
       await obj.destroy();
     }

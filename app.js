@@ -226,7 +226,7 @@ global.syzoj = {
       if (req.session.user_id) {
         User.findById(req.session.user_id).then((user) => {
           res.locals.user = user;
-          if(user.prefer_formatted_code&&req.cookies.isdark!=0){
+          if(user.prefer_dark_mode&&req.cookies.isdark!=0){
             res.locals.isDark=true;
           }
           else{
@@ -254,7 +254,7 @@ global.syzoj = {
               if (!user) throw null;
               res.locals.user = user;
               req.session.user_id = user.id;
-              if(user.prefer_formatted_code&&req.cookies.isdark!=0){
+              if(user.prefer_dark_mode&&req.cookies.isdark!=0){
                 res.locals.isDark=true;
               }
               else{
