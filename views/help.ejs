@@ -32,8 +32,11 @@
   <span class="pl-p-Indicator">-</span> <span class="pl-l-Scalar-Plain">score</span><span class="pl-p-Indicator">:</span> <span class="pl-l-Scalar-Plain">30</span>              <span class="pl-c1"># 另一个子任务</span>
     <span class="pl-l-Scalar-Plain">type</span><span class="pl-p-Indicator">:</span> <span class="pl-l-Scalar-Plain">mul</span>
     <span class="pl-l-Scalar-Plain">cases</span><span class="pl-p-Indicator">:</span> <span class="pl-p-Indicator">[</span><span class="pl-s">'4'</span><span class="pl-p-Indicator">,</span> <span class="pl-s">'5'</span><span class="pl-p-Indicator">,</span> <span class="pl-s">'6'</span><span class="pl-p-Indicator">]</span> <span class="pl-c1"># 测试点编号也可为字符串</span>
-    <span class="pl-l-Scalar-Plain">needNumber</span><span class="pl-p-Indicator">:</span> <span class="pl-p-Indicator">1</span>          <span class="pl-c1"># （可选）依赖的subtask数量</span>
+    <!--
+	<span class="pl-l-Scalar-Plain">needNumber</span><span class="pl-p-Indicator">:</span> <span class="pl-p-Indicator">1</span>          <span class="pl-c1"># （可选）依赖的subtask数量</span>
     <span class="pl-l-Scalar-Plain">need</span><span class="pl-p-Indicator">:</span> <span class="pl-p-Indicator">[</span><span class="pl-nv">1</span><span class="pl-p-Indicator">]</span>              <span class="pl-c1"># （可选）依赖的subtask编号（从1开始）</span>
+	--><span class="pl-l-Scalar-Plain">dependency</span><span class="pl-p-Indicator">:</span> <span class="pl-p-Indicator">[</span><span class="pl-nv">1</span><span class="pl-p-Indicator">]</span>        <span class="pl-c1"># （可选）依赖的subtask编号（从1开始）</span>
+
 <span class="pl-l-Scalar-Plain">inputFile</span><span class="pl-p-Indicator">:</span> <span class="pl-s">'dat#.in'</span>   <span class="pl-c1"># 测试数据包中的输入文件</span>
 <span class="pl-l-Scalar-Plain">outputFile</span><span class="pl-p-Indicator">:</span> <span class="pl-s">'dat#.ans'</span> <span class="pl-c1"># 测试数据包中的输出文件</span>
 <span class="pl-c1"># 上述文件名中的 # 字符将被替换为测试点编号</span>

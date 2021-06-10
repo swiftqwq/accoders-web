@@ -26,8 +26,10 @@ let subtaskType = {
             <td style="background-color: #F9FAFB" colspan="<%= problem.type === 'submit-answer' ? 3 : 2 %>">
               <h4 style="margin-bottom: 3px; ">子任务 <%= ++i %></h4>
               <span style="font-weight: normal; "><%= subtaskType[subtask.type] %>，总分值 <%= subtask.score %></span>
-              <% if ((subtask.needNumber != 0) && (subtask.needNumber)) { %>
-                <span style="font-weight: normal; ">（依赖于Subtask<%= subtask.need %>）</span>
+			  <% if (subtask.need && subtask.need.length) { %>
+                <span style="font-weight: normal; ">（依赖于 Subtask <%= subtask.need %>）</span>
+              <% } else if (subtask.dependency && subtask.dependency.length) { %>
+                <span style="font-weight: normal; ">（依赖于 Subtask <%= subtask.dependency %>）</span>
               <% } %>
             </th>
           </tr>
