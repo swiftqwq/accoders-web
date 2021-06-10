@@ -7,7 +7,6 @@ const Record = syzoj.model('record');
 let Article = syzoj.model('article');
 
 function isOJ(domain){
-  console.error(domain);
   return domain=="m.akcoders.cf"||domain=="47.92.197.167"||domain=="oj.zhangyiming.tech";
 }
 app.get('/user_is_banned',async(req,res)=>{
