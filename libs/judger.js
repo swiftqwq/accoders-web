@@ -46,25 +46,26 @@ async function connect() {
   };
 
   const judgeNamespace = syzoj.socketIO.of('judge');
-  judgeNamespace.on('connect', async socket => {
+  judgeNamespace.on('connect', /*async*/ socket => {
     winston.info(`Judge client ${socket.id} connected.`);
-
-    let judger = await Judger.findOne({
-      where:{
-        id:socket.id
-      }
-    })
-    if(!judger){
-      judger = await Judger.create({
-        id:socket.id
-      })
-    }
-
-    judger.is_online = true;
-    await judger.save()
 
     let pendingAckTaskObj = null, waitingForTask = false;
     socket.on('waitForTask', async (token, ack) => {
+
+      let judger = await Judger.findOne({
+        where:{
+          id:socket.id
+        }
+      })
+      if(!judger){
+        judger = await Judger.create({
+          id:socket.id
+        })
+      }
+
+      judger.is_online = true;
+      await judger.save()
+
       // Ignore requests with invalid token.
       if (token != syzoj.config.judge_token) {
         winston.warn(`Judge client ${socket.id} emitted waitForTask with invalid token.`);
@@ -117,8 +118,21 @@ async function connect() {
 
     socket.on('disconnect', async reason => {
       winston.warn(`Judge client ${socket.id} disconnected, reason = ${util.inspect(reason)}.`);
-      judger.is_online = false
+      
+      let judger = await Judger.findOne({
+        where:{
+          id:socket.id
+        }
+      })
+      if(!judger){
+        judger = await Judger.create({
+          id:socket.id
+        })
+      }
+
+      judger.is_online = true;
       await judger.save()
+      
       if (pendingAckTaskObj) {
         // A task sent but not acked, push to queue again.
         winston.warn(`Re-pushing task ${pendingAckTaskObj.data.content.taskId} to judge queue.`);
