@@ -38,6 +38,7 @@ app.get('/', async (req, res) => {
     let countdown = syzoj.config.countdown; //倒计时配置
     let moment = require("moment"); 
     let now = moment(), count_time = moment(countdown.date);
+    countdown.days = count_time.diff(now, 'day'); //计算倒计时天数
 
     let problems = (await Problem.queryRange([1, 5], { is_public: true }, {
       publicize_time: 'DESC'
