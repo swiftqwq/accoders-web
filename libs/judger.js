@@ -5,7 +5,6 @@ const msgPack = require('msgpack-lite');
 const fs = require('fs-extra');
 const interface = require('./judger_interfaces');
 const judgeResult = require('./judgeResult');
-
 const judgeStateCache = new Map();
 const progressPusher = require('../modules/socketio');
 
@@ -26,6 +25,7 @@ let judgeQueue;
 
 async function connect() {
   const JudgeState = syzoj.model('judge_state');
+  const Judger = syzoj.model("judger")
 
   const  blockableRedisClient = syzoj.redis.duplicate();
   judgeQueue = {
@@ -46,8 +46,22 @@ async function connect() {
   };
 
   const judgeNamespace = syzoj.socketIO.of('judge');
-  judgeNamespace.on('connect', socket => {
+  judgeNamespace.on('connect', async socket => {
     winston.info(`Judge client ${socket.id} connected.`);
+
+    let judger = await Judger.findOne({
+      where:{
+        id:socket.id
+      }
+    })
+    if(!judger){
+      judger = await Judger.create({
+        id:socket.id
+      })
+    }
+
+    judger.is_online = true;
+    await judger.save()
 
     let pendingAckTaskObj = null, waitingForTask = false;
     socket.on('waitForTask', async (token, ack) => {
@@ -101,8 +115,10 @@ async function connect() {
       });
     });
 
-    socket.on('disconnect', reason => {
+    socket.on('disconnect', async reason => {
       winston.warn(`Judge client ${socket.id} disconnected, reason = ${util.inspect(reason)}.`);
+      judger.is_online = false
+      await judger.save()
       if (pendingAckTaskObj) {
         // A task sent but not acked, push to queue again.
         winston.warn(`Re-pushing task ${pendingAckTaskObj.data.content.taskId} to judge queue.`);

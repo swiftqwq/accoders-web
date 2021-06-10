@@ -2,6 +2,7 @@ let User = syzoj.model('user');
 let Article = syzoj.model('article');
 let Contest = syzoj.model('contest');
 let Problem = syzoj.model('problem');
+let Judger = syzoj.model('judger')
 let Divine = syzoj.lib('divine');
 let JudgeState = syzoj.model('judge_state');
 let TimeAgo = require('javascript-time-ago');
@@ -54,6 +55,9 @@ app.get('/', async (req, res) => {
         status:"Waiting"
       }
     })
+
+    let judgers = await Judger.find()
+
     await cpuStat.usagePercent(function(err, percent, seconds) {
       if (err) {
           return console.log(err);
@@ -73,6 +77,7 @@ app.get('/', async (req, res) => {
         contests: contests,
         problems: problems,
         links: syzoj.config.links,
+        judgers: judgers,
         message: `CPU使用率：${percent.toFixed(2)}%<br>内存使用率：${mem_ratio.toFixed(2)}%<br>评测队列大小：${tmp.length}`
       });
     });

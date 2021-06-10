@@ -119,6 +119,13 @@ global.syzoj = {
       set: util.promisify(this.redis.set).bind(this.redis)
     };
 
+    const Judger = this.model("judger");
+    let judgers = await Judger.find();
+    judgers.forEach(async x=>{
+      x.is_online = false;
+      await x.save();
+    })
+
     if (!module.parent) {
       // Loaded by node CLI, not by `require()`.
 

@@ -8,6 +8,13 @@
         <div class="content">
           <div class="header">服务器状态</div>
           <p><%-message%></p>
+          <p>在线评测机：</p>
+          <% let id=0 %>
+          <% for(let judger of judgers.filter(x=>x.is_online)) {%>
+            评测机<%=id%>： <%=judger.id%>
+            <% id++ %>
+            <br>
+          <% } %>
         </div>
       </div>
       <h4 class="ui top attached block header"><i class="ui bullhorn icon"></i>公告</h4>
