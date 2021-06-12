@@ -6,6 +6,7 @@ declare var syzoj: any;
 import JudgeState from "./judge_state";
 import UserPrivilege from "./user_privilege";
 import Article from "./article";
+import File from "./file";
 
 @TypeORM.Entity()
 export default class User extends Model {
@@ -65,6 +66,16 @@ export default class User extends Model {
 
   @TypeORM.Column({ nullable: false, default: true, type: "boolean" })
   is_banned: boolean;
+
+  upload_files: File[];
+
+  async loadRelationships() {
+    this.upload_files = await File.find({
+      where: {
+        type: `upload-by-user-${this.id}`
+      }
+    })
+  }
 
   static async fromEmail(email): Promise<User> {
     return User.findOne({

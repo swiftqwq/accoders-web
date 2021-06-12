@@ -74,7 +74,7 @@ if (contest) {
     <% if (!contest) { %>
         <div class="row" style="margin-top: -23px">
             <span class="ui label">上传者：
-            <% if (problem.is_anonymous && !problem.allowedManage) { %>
+            <% if (problem.is_anonymous && !problem.allowedManage && problem.user) { %>
               匿名
             <% } else { %>
               <a href="<%= syzoj.utils.makeUrl(['user', problem.user_id]) %>"><%= problem.user.username %></a>

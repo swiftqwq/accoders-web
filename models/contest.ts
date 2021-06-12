@@ -47,6 +47,9 @@ export default class Contest extends Model {
   information: string;
 
   @TypeORM.Column({ nullable: true, type: "text" })
+  after_information: string;
+
+  @TypeORM.Column({ nullable: true, type: "text" })
   problems: string;
 
   @TypeORM.Column({ nullable: true, type: "text" })
@@ -168,7 +171,7 @@ export default class Contest extends Model {
         await player_after.save();
       }
 
-      
+
       await this.loadRelationships();
 
       if (!this.after_ranklist) {
@@ -179,7 +182,7 @@ export default class Contest extends Model {
         await this.save();
       }
 
-      if (judge_state.submit_time>=this.start_time&&judge_state.submit_time<=this.end_time) {
+      if (judge_state.submit_time >= this.start_time && judge_state.submit_time <= this.end_time) {
         await player.updateScore(judge_state);
         await player.save();
         await this.ranklist.updatePlayer(this, player);

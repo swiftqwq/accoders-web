@@ -79,6 +79,17 @@
         </div>
       </div>
       <% } %>
+      
+    <% if (contest.after_information && isEnd) { %>
+      <div class="row">
+        <div class="column">
+          <h4 class="ui top attached block header">赛后公告</h4>
+          <div class="ui bottom attached segment font-content">
+            <%- contest.after_information %>
+          </div>
+        </div>
+      </div>
+      <% } %>
         <% if (unveiled) { %>
           <div class="row">
             <div class="column">

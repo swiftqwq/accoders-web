@@ -239,6 +239,7 @@ app.post('/contest/:id/edit', async (req, res) => {
     contest.problems = req.body.problems.join('|');
     contest.admins = req.body.admins.join('|');
     contest.information = req.body.information;
+    contest.after_information = req.body.after_information;
     contest.start_time = syzoj.utils.parseDate(req.body.start_time);
     contest.end_time = syzoj.utils.parseDate(req.body.end_time);
     contest.is_public = req.body.is_public === 'on';

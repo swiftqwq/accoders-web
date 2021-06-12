@@ -1015,6 +1015,7 @@ app.post('/problem/:id/testdata/delete/:filename', async (req, res) => {
     await problem.packFiles();
     res.redirect(syzoj.utils.makeUrl(['problem', id, 'testdata']));
   } catch (e) {
+    let id = parseInt(req.params.id);
     syzoj.log(e);
     res.redirect(syzoj.utils.makeUrl(['problem', id, 'testdata']));
   }

@@ -61,6 +61,10 @@
                 <textarea rows="5" name="information" class="markdown-edit"><%= contest.information %></textarea>
             </div>
             <div class="field">
+                <label>赛后公告</label>
+                <textarea rows="5" name="after_information" class="markdown-edit"><%= contest.after_information %></textarea>
+            </div>
+            <div class="field">
                 <label>开始时间</label>
                 <input type="text" name="start_time" value="<%= syzoj.utils.formatDate(contest.start_time || syzoj.utils.getCurrentDate()) %>">
             </div>
