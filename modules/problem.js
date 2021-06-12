@@ -995,10 +995,9 @@ app.post('/problem/:id/testdata/upload', app.multer.array('file'), async (req, r
     await problem.packFiles();
     res.redirect(syzoj.utils.makeUrl(['problem', id, 'testdata']));
   } catch (e) {
+    let id = parseInt(req.params.id);
     syzoj.log(e);
-    res.render('error', {
-      err: e
-    });
+    res.redirect(syzoj.utils.makeUrl(['problem', id, 'testdata']));
   }
 });
 
