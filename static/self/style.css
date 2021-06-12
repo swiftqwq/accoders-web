@@ -27,7 +27,6 @@ h5,
 body
  {
   font-family:
-    'JetBrains Mono',
     Lato,
     -apple-system,
     'PingFang SC',/* Apple */
@@ -50,7 +49,7 @@ a.black-link:hover {
 }
 
 .font-content {
-  font-family: 'JetBrains Mono','Open Sans', 'Source Han Sans SC', 'Noto Sans CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  font-family: /*'JetBrains Mono',*/'Open Sans', 'Source Han Sans SC', 'Noto Sans CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
 }
 
 .markdown-edit {

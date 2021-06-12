@@ -153,7 +153,6 @@ export default class Problem extends Model {
   }
   async packFiles(){
     var alreadyExit=false;
-    console.log(this.getTestdataExportPath());
     if(alreadyExit){
       await fs.unlink(this.getTestdataExportPath(), function(err){
         if(err){
@@ -192,9 +191,6 @@ export default class Problem extends Model {
     await fs.writeFile(this.getTestdataPath()+"/config.json",JSON.stringify(obj));
     
   }
-  async check(){
-    syzoj.log("check");
-  }
   async loadData(path){
     //await syzoj.utils.lock(['Problem::Testdata', this.id], async () => {
       let execFileAsync = util.promisify(require('child_process').execFile);
@@ -202,9 +198,7 @@ export default class Problem extends Model {
       await execFileAsync(__dirname + '/../bin/unzip', ['-j', '-o', '-d', dir, path]);
       var files=fs.readdirSync(dir);
         files.forEach( function (name) {
-            syzoj.log(name);
             var filePath = dir+"/"+name;
-            syzoj.log(filePath);
             var stat = fs.statSync(filePath);
             if (stat.isFile()) {
                 if(name.endsWith(".zip")){
@@ -215,13 +209,8 @@ export default class Problem extends Model {
                 }
               }
             });
-      await syzoj.log(configPath);
-      await syzoj.log(zipPath);
-      syzoj.log("updating testdata");
       await this.updateTestdata(zipPath,true);
-      syzoj.log("updating config");
                   var str=await fs.readFile(configPath);
-                  syzoj.log(str.toString());
                   var json=JSON.parse(str.toString());
 
                   //if (!json.success) throw new ErrorMessage('题目加载失败。', null, json.error);

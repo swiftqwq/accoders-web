@@ -151,7 +151,7 @@
     "format": "cpp"
   },
   "cpp-noilinux-o2": {
-    "show": "C++(NOI) (O2)",
+    "show": "C++(NOI)(O2)",
     "highlight": "cpp",
     "version": "GCC 4.8.4 (NOILinux 1.4.1)",
     "editor": "cpp",

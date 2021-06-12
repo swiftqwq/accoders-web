@@ -530,7 +530,6 @@ app.post('/admin/enable_user',async(req,res)=>{
     type:"enable",
     data:""
   });
-  console.log(id);
   await user.save();
   await record.save();
 });

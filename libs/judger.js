@@ -130,7 +130,7 @@ async function connect() {
         })
       }
 
-      judger.is_online = true;
+      judger.is_online = false;
       await judger.save()
       
       if (pendingAckTaskObj) {

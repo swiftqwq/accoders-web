@@ -709,7 +709,6 @@ app.post('/problem/:id/load_file', app.multer.fields([{ name: 'data', maxCount: 
     }
     if (req.files['data']) {
       await problem.loadData(req.files['data'][0].path);
-      await problem.check();
     }
     res.render('success', {
       success: true
@@ -720,7 +719,6 @@ app.post('/problem/:id/load_file', app.multer.fields([{ name: 'data', maxCount: 
   }
 });
 app.post('/problem/:id/manage', app.multer.fields([{ name: 'testdata', maxCount: 1 }, { name: 'additional_file', maxCount: 1 }]), async (req, res) => {
-  syzoj.log("problem manage...");
   try {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
@@ -747,11 +745,11 @@ app.post('/problem/:id/manage', app.multer.fields([{ name: 'testdata', maxCount:
 
     let validateMsg = await problem.validate();
     if (validateMsg) throw new ErrorMessage('无效的题目数据配置。', null, validateMsg);
-
+    
     if (req.files['testdata']) {
       await problem.updateTestdata(req.files['testdata'][0].path, await res.locals.user.hasPrivilege('manage_problem'));
     }
-
+    
     if (req.files['additional_file']) {
       await problem.updateFile(req.files['additional_file'][0].path, 'additional_file', await res.locals.user.hasPrivilege('manage_problem'));
     }
@@ -761,7 +759,7 @@ app.post('/problem/:id/manage', app.multer.fields([{ name: 'testdata', maxCount:
     await problem.packFiles();
     res.redirect(syzoj.utils.makeUrl(['problem', id, 'manage']));
   } catch (e) {
-    syzoj.log(e);
+    let id = parseInt(req.params.id);
     res.redirect(syzoj.utils.makeUrl(['problem', id, 'manage']));
   }
 });

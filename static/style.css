@@ -4,7 +4,6 @@
   src:local('JetBrainsMono'),url(fonts/JetBrainsMono.ttf) format('ttf');
 }
 
-
 /* latin-ext */
 @font-face {
   font-family: 'Raleway';
@@ -336,7 +335,6 @@ h5,
 body
  {
   font-family:
-    'JetBrains Mono',
     -apple-system, 
     'PingFang SC',/* Apple */ 
     'Source Han Sans SC', 
@@ -350,7 +348,7 @@ body
 }
 
 .font-content {
-  font-family: 'JetBrains Mono','Open Sans', 'Source Han Sans SC', 'Noto Sans CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  font-family: /*'JetBrains Mono',*/'Open Sans', 'Source Han Sans SC', 'Noto Sans CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
 }
 
 .main.container {
