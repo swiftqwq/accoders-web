@@ -35,17 +35,18 @@ function getIcon(filename) {
 }
 %>
 <% include header %>
-<div class="padding">
-  <div class="ui grid">
-    <div class="nine wide column">
+<!--div class="padding"-->
+  <!--div class="ui grid"-->
+    <!--div class="nine wide column"-->
       <h3 style="text-align: center; ">文件列表</h3>
-      <% if (files) { %>
+      <% if (files.length) { %>
         <table class="ui very basic center aligned table">
           <thead>
             <tr>
               <th class="left aligned">文件名</th>
               <th style="width: 100px">文件大小</th>
               <th style="width: 35px">下载</th>
+              <th style="width: 35px">分享</th>
               <th style="width: 35px">删除</th>
             </tr>
           </thead>
@@ -59,6 +60,11 @@ function getIcon(filename) {
               <td>
                 <a style="color: #000; " href="<%= syzoj.utils.makeUrl(['file', 'download', file.filename]) %>">
                   <i class="download icon"></i>
+                </a>
+              </td>
+              <td>
+                <a style="color: #000; " href="<%= syzoj.utils.makeUrl(['file', 'share', file.filename]) %>">
+                  <i class="share icon"></i>
                 </a>
               </td>
                 <td>
@@ -90,7 +96,12 @@ function getIcon(filename) {
           </tbody>
         </table>
       <% } else { %>
-        <h4 style="text-align: center; ">无上传的文件</h4>
+        <div class="ui placeholder segment">
+          <div class="ui icon header">
+            <i class="file icon" style="margin-bottom: 20px; "></i>
+            暂无文件
+          </div>
+      </div>
       <% } %>
         <form id="form_upload" class="ui form" action="<%= syzoj.utils.makeUrl(['file', 'upload']) %>" method="post" enctype="multipart/form-data">
           <div class="inline fields">
@@ -98,7 +109,7 @@ function getIcon(filename) {
               <label for="answer">上传文件（可一次性上传多个）</label>
               <input type="file" name="file" multiple id="upload_file">
               <div class="ui center aligned vertical segment" style="padding-bottom: 0; ">
-                <div class="ui labeled icon blue button" onclick="check_replace()"><i class="ui edit icon"></i>提交</div>
+                <div class="ui labeled icon blue button" onclick="check_replace()"><i class="ui edit icon"></i>上传</div>
               </div>
             </div>
           </div>
@@ -137,7 +148,7 @@ function getIcon(filename) {
           }
         }
         </script>
-    </div>
-  </div>
-</div>
+    <!--/div-->
+  <!--/div-->
+<!--/div-->
 <% include footer %>

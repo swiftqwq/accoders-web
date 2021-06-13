@@ -59,7 +59,7 @@ app.get('/contest/:id*',async(req,res,next)=>{
     }
     if (!res.locals.user) throw new ErrorMessage("用户未登录！");
     let contest_id = parseInt(req.params.id);
-    if(isNaN(contest_id)||contest_id==0){
+    if(isNaN(contest_id)||contest_id==0||res.locals.user.is_admin){
       next();
       return;
     }
@@ -277,10 +277,20 @@ app.get('/contest/:id/', async (req, res) => {
     let player = null;
 
     if (res.locals.user) {
-      player = await ContestPlayer.findInContest({
-        contest_id: contest.id,
-        user_id: res.locals.user.id
-      });
+      if(contest.ended){
+        player = await ContestPlayer.findInContest({
+          contest_id: contest.id,
+          user_id: res.locals.user.id,
+          is_after: true
+        });
+      }
+      else{
+        player = await ContestPlayer.findInContest({
+          contest_id: contest.id,
+          user_id: res.locals.user.id,
+          is_after: false
+        });
+      }
     }
 
     problems = problems.map(x => ({ problem: x, status: null, judge_id: null, statistics: null }));

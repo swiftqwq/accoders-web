@@ -311,11 +311,11 @@ global.syzoj = {
 
     app.use((req,res,next) => {
       if(req.path.indexOf('download') != -1){
-        console.log(`ip ${req.ip}try to download`);
-        if(req.ip.indexOf('119.51.93.38') == -1 && req.ip.indexOf('122.139.1.109') == -1){
+        console.log(`ip ${req.ip} try to download`);
+        /*if(req.ip.indexOf('119.51.93.38') == -1 && req.ip.indexOf('122.139.1.109') == -1){
           res.sendStatus(403);
           return;
-        }
+        }*/
       }
       next();
     });

@@ -8,6 +8,10 @@ import UserPrivilege from "./user_privilege";
 import Article from "./article";
 import File from "./file";
 
+import * as fs from "fs-extra";
+import * as path from "path";
+import * as util from "util";
+
 @TypeORM.Entity()
 export default class User extends Model {
   static cache = true;
@@ -75,6 +79,63 @@ export default class User extends Model {
         type: `upload-by-user-${this.id}`
       }
     })
+  }
+
+  getFilePath() {
+    return syzoj.utils.resolvePath(syzoj.config.upload_dir, 'user-upload', this.id.toString());
+  }
+
+  async listFile() {
+    try {
+      let dir = this.getFilePath();
+      let filenameList = await fs.readdir(dir);
+      let list = await Promise.all(filenameList.map(async x => {
+        let stat = await fs.stat(path.join(dir, x));
+        if (!stat.isFile()) return undefined;
+        return {
+          filename: x,
+          size: stat.size
+        };
+      }));
+
+      list = list.filter(x => x);
+
+      let res = {
+        files: list,
+        zip: null
+      };
+
+      return res;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async uploadSingleFile(filename, filepath, size, noLimit) {
+    await syzoj.utils.lock(['Promise::Userfile', this.id], async () => {
+      let dir = this.getFilePath();
+      await fs.ensureDir(dir);
+
+      let oldSize = 0, list = await this.listFile(), replace = false, oldCount = 0;
+      if (list) {
+        oldCount = list.files.length;
+        for (let file of list.files) {
+          if (file.filename !== filename) oldSize += file.size;
+          else replace = true;
+        }
+      }
+
+      await fs.move(filepath, path.join(dir, filename), { overwrite: true });
+
+      let execFileAsync = util.promisify(require('child_process').execFile);
+      try { await execFileAsync('dos2unix', [path.join(dir, filename)]); } catch (e) { }
+    });
+  }
+
+  async deleteSingleFile(filename) {
+    await syzoj.utils.lock(['Promise::Userfile', this.id], async () => {
+      await fs.remove(path.join(this.getFilePath(), filename));
+    });
   }
 
   static async fromEmail(email): Promise<User> {
