@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 let formidable = require('formidable');
 const { deprecate } = require("util");
+const utils = require("markdown-it/lib/common/utils");
 
 let Judger = syzoj.lib('judger');
 let CodeFormatter = syzoj.lib('code_formatter');
@@ -754,9 +755,13 @@ app.post('/problem/:id/manage', app.multer.fields([{ name: 'testdata', maxCount:
       await problem.updateFile(req.files['additional_file'][0].path, 'additional_file', await res.locals.user.hasPrivilege('manage_problem'));
     }
 
+    
+    problem.pretest = await syzoj.utils.getPretests(problem.getTestdataPath());
+
     await problem.save();
     await problem.updateConfig();
     await problem.packFiles();
+    
     res.redirect(syzoj.utils.makeUrl(['problem', id, 'manage']));
   } catch (e) {
     let id = parseInt(req.params.id);

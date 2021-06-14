@@ -1,4 +1,4 @@
-<% this.title = '导入成功' %>
+<% this.title = '操作成功' %>
 <% include header %>
 
 <div class="ui success icon message">
@@ -8,7 +8,7 @@
       操作成功！
     </div>
     <% if(message) { %>
-    <p><%=message%></p>
+    <p><%- message %></p>
     <% } %>
     <p>
       <a href="javascript:history.go(-1)">返回上一页</a>

@@ -98,6 +98,9 @@ export default class Problem extends Model {
   @TypeORM.Column({ nullable: true, type: "text" })
   file_io_input_name: string;
 
+  @TypeORM.Column({ nullable: true, type: "json" })
+  pretest: any;
+
   @TypeORM.Column({ nullable: true, type: "text" })
   file_io_output_name: string;
 

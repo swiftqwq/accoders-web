@@ -138,16 +138,16 @@ export default class JudgeState extends Model {
   }
 
   async updateRelatedInfo(newSubmission) {
+    const promises = [];
+    if (!newSubmission) {
+      promises.push(this.problem.updateStatistics(this.user_id));
+    }
     if (this.type === 0) {
       await this.loadRelationships();
 
-      const promises = [];
       promises.push(this.user.refreshSubmitInfo());
       promises.push(this.problem.resetSubmissionCount());
 
-      if (!newSubmission) {
-        promises.push(this.problem.updateStatistics(this.user_id));
-      }
       if (this.problem_id == -233) {
         if (this.status == Status.ACCEPTED || this.status == Status.WRONG_ANSWER || this.status == Status.PARTIALLY_CORRECT) {
           let msg = this.result.judge.subtasks[0].cases[0].result.spjMessage;

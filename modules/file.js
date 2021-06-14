@@ -187,7 +187,7 @@ app.get('/file/share/:filename?', async (req, res) => {
     if (!await syzoj.utils.isFile(filename)) throw new ErrorMessage('文件不存在。');
 
     res.render('success',{
-        message: `分享成功，链接为 http://47.92.197.167:5283/file/download-share/${Encrypt(filename,"dsfz")}`
+        message: `链接为 <a>http://47.92.197.167:5283/file/download-share/${Encrypt(filename,"dsfz")}</a>`
     })
   } catch (e) {
     syzoj.log(e);

@@ -27,6 +27,7 @@ let filesize = require('file-size');
 let AsyncLock = require('async-lock');
 let JSDOM = require('jsdom').JSDOM;
 let renderer = require('./libs/renderer');
+const { getPreEmitDiagnostics } = require('typescript');
 
 module.exports = {
   resolvePath(s) {
@@ -140,6 +141,26 @@ module.exports = {
   },
   gravatar(email, size) {
     return gravatar.url(email, { s: size, d: 'mm' }).replace('//www.gravatar.com/avatar', syzoj.config.gravatar_url);
+  },
+  async getPretests(dir){
+    if (!await syzoj.utils.isDir(dir)) return null;
+    try {
+      // Get list of *files*
+      let list = await (await fs.readdirAsync(dir)).filterAsync(async x => await syzoj.utils.isFile(path.join(dir, x)));
+
+      let res = [];
+      if (list.includes('data.yml')){
+        let config = require('js-yaml').load((await fs.readFileAsync(dir + '/data.yml')));
+        return config.pretest.map(id=>{
+          return config.inputFile.split('#').join(String(id))
+        })
+      }
+      
+      return null;
+    } catch (e) {
+      console.log(e);
+      return { error: e };
+    }
   },
   async parseTestdata(dir, submitAnswer) {
     if (!await syzoj.utils.isDir(dir)) return null;

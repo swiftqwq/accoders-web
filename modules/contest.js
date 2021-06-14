@@ -270,6 +270,8 @@ app.get('/contest/:id/', async (req, res) => {
     contest.ended = contest.isEnded();
     contest.subtitle = await syzoj.utils.markdown(contest.subtitle);
     contest.information = await syzoj.utils.markdown(contest.information);
+    contest.after_information = await syzoj.utils.markdown(contest.after_information);
+
 
     let problems_id = await contest.getProblems();
     let problems = await problems_id.mapAsync(async id => await Problem.findById(id));
@@ -301,7 +303,22 @@ app.get('/contest/:id/', async (req, res) => {
             let judge_state = await JudgeState.findById(player.score_details[problem.problem.id].judge_id);
             problem.status = judge_state.status;
             if (!contest.ended && !await problem.problem.isAllowedEditBy(res.locals.user) && !['Compile Error', 'Waiting', 'Compiling'].includes(problem.status)) {
-              problem.status = 'Submitted';
+              if(!problem.problem.pretest){
+                problem.status = 'Submitted';
+              }
+              else{
+                let tmp = [],status = "Pretests Passed"
+                judge_state.result.judge.subtasks.forEach(a => {
+                    a.cases.forEach(b=>{
+                        if(problem.problem.pretest.includes(b.result.input.name)){
+                            if(b.result.type != 1){
+                                status = "Pretests Failed";
+                            }
+                        }
+                    })
+                });
+                problem.status = status
+              }
             }
             problem.judge_id = player.score_details[problem.problem.id].judge_id;
           }
@@ -594,6 +611,7 @@ app.get('/contest/submission/:id', async (req, res) => {
     contest.ended = contest.isEnded();
 
     const displayConfig = getDisplayConfig(contest);
+
     displayConfig.showCode = true;
 
     await judge.loadRelationships();
@@ -606,6 +624,8 @@ app.get('/contest/submission/:id', async (req, res) => {
       judge.code = await syzoj.utils.highlight(judge.code, syzoj.languages[judge.language].highlight);
     }
 
+    displayConfig.pretest = judge.problem.pretest
+
     res.render('submission', {
       info: getSubmissionInfo(judge, displayConfig),
       roughResult: getRoughResult(judge, displayConfig),
@@ -613,7 +633,7 @@ app.get('/contest/submission/:id', async (req, res) => {
       formattedCode: judge.formattedCode ? judge.formattedCode.toString("utf8") : null,
       preferFormattedCode: res.locals.user ? res.locals.user.prefer_dark_mode : false,
       detailResult: processOverallResult(judge.result, displayConfig),
-      socketToken: (displayConfig.showDetailResult && judge.pending && judge.task_id != null) ? jwt.sign({
+      socketToken: (judge.pending && judge.task_id != null) ? jwt.sign({
         taskId: judge.task_id,
         displayConfig: displayConfig,
         type: 'detail'

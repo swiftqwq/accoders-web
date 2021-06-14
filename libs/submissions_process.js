@@ -42,8 +42,21 @@ const getRoughResult = (x, displayConfig, roughOnly) => {
         if (x.compilation == null || [0, 1].includes(x.compilation.status)) {
             return null;
         } else {
+            if(!x.problem.pretest){
+                return { result: "Submitted"};
+            }
             if (x.compilation.status === 2) { // 2 is TaskStatus.Done
-                return { result: "Submitted" };
+                let tmp = [],status = "Pretests Passed"
+                x.result.judge.subtasks.forEach(a => {
+                    a.cases.forEach(b=>{
+                        if(x.problem.pretest.includes(b.result.input.name)){
+                            if(b.result.type != 1){
+                                status = "Pretests Failed";
+                            }
+                        }
+                    })
+                });
+                return {result: status};
             } else {
                 return { result: "Compile Error" };
             }
@@ -59,6 +72,34 @@ const processOverallResult = (source, config) => {
             error: source.error,
             systemMessage: source.systemMessage
         };
+    }
+    if(!config.showDetailResult && config.pretest){
+        return {
+            compile: source.compile,
+            judge: {
+                subtasks: source.judge.subtasks.map(st => ({
+                    score: st.score,
+                    cases: st.cases.filter(cs => {
+                        return config.pretest.includes(cs.result.input.name)
+                    }).map(cs => ({
+                        status: cs.status,
+                        errorMessage: cs.errorMessage,
+                        result: cs.result && {
+                            type: cs.result.type,
+                            time: config.showUsage ? cs.result.time : undefined,
+                            memory: config.showUsage ? cs.result.memory : undefined,
+                            scoringRate: cs.result.scoringRate,
+                            systemMessage: cs.result.systemMessage,
+                            input: config.showTestdata ? cs.result.input : undefined,
+                            output: config.showTestdata ? cs.result.output : undefined,
+                            userOutput: config.showTestdata ? cs.result.userOutput : undefined,
+                            userError: config.showTestdata ? cs.result.userError : undefined,
+                            spjMessage: config.showTestdata ? cs.result.spjMessage : undefined,
+                        }
+                    }))
+                }))
+            }
+        }
     }
     return {
         compile: source.compile,

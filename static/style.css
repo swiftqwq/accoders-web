@@ -415,13 +415,19 @@ body > .ui.page.dimmer {
 .title.active .status_detail.status.submitted,
 :not(.status_detail).status.accepted,
 .title:hover .status_detail.status.accepted,
-.title.active .status_detail.status.accepted {
+.title.active .status_detail.status.accepted,
+:not(.status_detail).status.pretest_passed,
+.title:hover .status_detail.status.pretest_passed,
+.title.active .status_detail.status.pretest_passed {
     color: forestgreen;
 }
 
 :not(.status_detail).status.wrong_answer,
 .title:hover .status_detail.status.wrong_answer,
-.title.active .status_detail.status.wrong_answer {
+.title.active .status_detail.status.wrong_answer,
+:not(.status_detail).status.pretest_failed,
+.title:hover .status_detail.status.pretest_failed,
+.title.active .status_detail.status.pretest_failed {
     color: red;
 }
 

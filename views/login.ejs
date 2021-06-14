@@ -67,7 +67,8 @@ function login() {
         type: 'POST',
         data: {
             "username": $("#username").val(),
-            "password": password
+            "password": password,
+            "unsafeToken": undefined
         },
         async: true,
         success: function(data) {

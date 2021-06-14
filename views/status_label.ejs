@@ -2,6 +2,7 @@
 const iconList = {
   'Accepted': 'checkmark',
   'Wrong Answer': 'remove',
+  'Pretests Failed': 'remove',
   'Runtime Error': 'bomb',
   'Invalid Interaction': 'ban',
   'Time Limit Exceeded': 'clock',
@@ -14,6 +15,7 @@ const iconList = {
   'Judging': 'spinner',
   'Compile Error': 'code',
   'Submitted': 'checkmark', // NOI contests
+  'Pretests Passed': 'checkmark', // NOI contests
   'System Error': 'server',
   'No Testdata': 'folder open outline',
   'Partially Correct': 'minus',
@@ -35,6 +37,8 @@ Vue.component('status-label', {
     },
     colorClass() {
       var x = this.status.startsWith('Running') ? 'Running' : this.status;
+      if(x == 'Pretests Failed')x='Wrong Answer';
+      if(x == 'Pretests Passed')x='Accepted';
       return (this.indetail ? 'status_detail ' : '') + x.toLowerCase().split(' ').join('_');
     },
     displayStatus() {

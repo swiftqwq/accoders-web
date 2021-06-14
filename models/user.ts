@@ -29,6 +29,9 @@ export default class User extends Model {
   @TypeORM.Column({ nullable: true, type: "varchar", length: 120 })
   password: string;
 
+  @TypeORM.Column({ nullable: true, type: "varchar", length: 120 })
+  token: string;
+
   @TypeORM.Column({ nullable: true, type: "varchar", length: 80 })
   nickname: string;
 

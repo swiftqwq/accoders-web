@@ -317,6 +317,7 @@ global.syzoj = {
           return;
         }*/
       }
+      console.log(req.method+' '+req.path);
       next();
     });
   }

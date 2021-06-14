@@ -114,7 +114,13 @@
                                 <a href="<%= syzoj.utils.makeUrl(['contest','submission', problem.judge_id]) %>">
                                   <% } %>
                                     <% if (typeof problem.status==='string' ) { %>
+                                      <% if(problem.status == "Pretests Passed") {%>
+                                      <span class="status accepted">
+                                      <% }else if(problem.status == "Pretests Failed") {%>
+                                      <span class="status wrong_answer">
+                                      <% }else {%>
                                       <span class="status <%= problem.status.toLowerCase().split(' ').join('_') %>">
+                                      <% } %>
                                         <b>
                                           <i class="<%= icon[getStatusMeta(problem.status)] || 'remove' %> icon"></i>
                                           <%= problem.feedback || problem.status %>
