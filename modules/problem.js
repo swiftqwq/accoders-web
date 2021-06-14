@@ -756,7 +756,7 @@ app.post('/problem/:id/manage', app.multer.fields([{ name: 'testdata', maxCount:
     }
 
     
-    problem.pretest = await syzoj.utils.getPretests(problem.getTestdataPath());
+    problem.pretests = await syzoj.utils.getPretests(problem.getTestdataPath());
 
     await problem.save();
     await problem.updateConfig();

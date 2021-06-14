@@ -42,14 +42,14 @@ const getRoughResult = (x, displayConfig, roughOnly) => {
         if (x.compilation == null || [0, 1].includes(x.compilation.status)) {
             return null;
         } else {
-            if(!x.problem.pretest){
+            if(!x.problem.pretests){
                 return { result: "Submitted"};
             }
             if (x.compilation.status === 2) { // 2 is TaskStatus.Done
                 let tmp = [],status = "Pretests Passed"
                 x.result.judge.subtasks.forEach(a => {
                     a.cases.forEach(b=>{
-                        if(x.problem.pretest.includes(b.result.input.name)){
+                        if(x.problem.pretests.includes(b.result.input.name)){
                             if(b.result.type != 1){
                                 status = "Pretests Failed";
                             }
@@ -73,28 +73,28 @@ const processOverallResult = (source, config) => {
             systemMessage: source.systemMessage
         };
     }
-    if(!config.showDetailResult && config.pretest){
+    if(!config.showDetailResult && config.pretests){
         return {
             compile: source.compile,
             judge: {
                 subtasks: source.judge.subtasks.map(st => ({
                     score: st.score,
                     cases: st.cases.filter(cs => {
-                        return config.pretest.includes(cs.result.input.name)
+                        return config.pretests.includes(cs.result.input.name)
                     }).map(cs => ({
                         status: cs.status,
                         errorMessage: cs.errorMessage,
                         result: cs.result && {
                             type: cs.result.type,
-                            time: config.showUsage ? cs.result.time : undefined,
-                            memory: config.showUsage ? cs.result.memory : undefined,
+                            time: cs.result.time,
+                            memory: cs.result.memory,
                             scoringRate: cs.result.scoringRate,
                             systemMessage: cs.result.systemMessage,
-                            input: config.showTestdata ? cs.result.input : undefined,
-                            output: config.showTestdata ? cs.result.output : undefined,
-                            userOutput: config.showTestdata ? cs.result.userOutput : undefined,
-                            userError: config.showTestdata ? cs.result.userError : undefined,
-                            spjMessage: config.showTestdata ? cs.result.spjMessage : undefined,
+                            input: cs.result.input,
+                            output: cs.result.output,
+                            userOutput: cs.result.userOutput,
+                            userError: cs.result.userError,
+                            spjMessage: cs.result.spjMessage,
                         }
                     }))
                 }))

@@ -151,7 +151,7 @@ module.exports = {
       let res = [];
       if (list.includes('data.yml')){
         let config = require('js-yaml').load((await fs.readFileAsync(dir + '/data.yml')));
-        return config.pretest.map(id=>{
+        return config.pretests.map(id=>{
           return config.inputFile.split('#').join(String(id))
         })
       }
@@ -159,7 +159,7 @@ module.exports = {
       return null;
     } catch (e) {
       console.log(e);
-      return { error: e };
+      return null;
     }
   },
   async parseTestdata(dir, submitAnswer) {

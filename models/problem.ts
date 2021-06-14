@@ -19,7 +19,7 @@ const problemTagCache = new LRUCache<number, number[]>({
   max: syzoj.config.db.cache_size
 });
 
-var configPath="",zipPath="";
+var configPath = "", zipPath = "";
 enum ProblemType {
   Traditional = "traditional",
   SubmitAnswer = "submit-answer",
@@ -99,7 +99,7 @@ export default class Problem extends Model {
   file_io_input_name: string;
 
   @TypeORM.Column({ nullable: true, type: "json" })
-  pretest: any;
+  pretests: any;
 
   @TypeORM.Column({ nullable: true, type: "text" })
   file_io_output_name: string;
@@ -108,10 +108,11 @@ export default class Problem extends Model {
   @TypeORM.Column({ nullable: true, type: "datetime" })
   publicize_time: Date;
 
-  @TypeORM.Column({ nullable: true,
-      type: "enum",
-      enum: ProblemType,
-      default: ProblemType.Traditional
+  @TypeORM.Column({
+    nullable: true,
+    type: "enum",
+    enum: ProblemType,
+    default: ProblemType.Traditional
   })
   type: ProblemType;
 
@@ -154,23 +155,23 @@ export default class Problem extends Model {
   getTestdataExportPath() {
     return syzoj.config.upload_dir + '/testdata-archive/' + 'export-' + this.id.toString() + '.zip'
   }
-  async packFiles(){
-    var alreadyExit=false;
-    if(alreadyExit){
-      await fs.unlink(this.getTestdataExportPath(), function(err){
-        if(err){
-            console.log(err);
-            throw err;
+  async packFiles() {
+    var alreadyExit = false;
+    if (alreadyExit) {
+      await fs.unlink(this.getTestdataExportPath(), function (err) {
+        if (err) {
+          console.log(err);
+          throw err;
         }
       });
     }
 
     let p7zip = new (require('node-7z'));
-    await p7zip.add(this.getTestdataExportPath(), [this.getTestdataArchivePath(),this.getTestdataPath()+"/config.json"]);
-    
+    await p7zip.add(this.getTestdataExportPath(), [this.getTestdataArchivePath(), this.getTestdataPath() + "/config.json"]);
+
   }
   ///usr/bin/node /home/running/syzoj/judge/lib/runner/index.js -s /home/running/syzoj/judge/runner-shared.json -i /home/running/syzoj/judge/runner-instance-1.json
-  async updateConfig(){
+  async updateConfig() {
     let obj = {
       title: this.title,
       description: this.description,
@@ -191,54 +192,54 @@ export default class Problem extends Model {
     let tags = await this.getTags();
 
     obj.tags = tags.map(tag => tag.name);
-    await fs.writeFile(this.getTestdataPath()+"/config.json",JSON.stringify(obj));
-    
+    await fs.writeFile(this.getTestdataPath() + "/config.json", JSON.stringify(obj));
+
   }
-  async loadData(path){
+  async loadData(path) {
     //await syzoj.utils.lock(['Problem::Testdata', this.id], async () => {
-      let execFileAsync = util.promisify(require('child_process').execFile);
-      let dir = this.getTestdataPath();
-      await execFileAsync(__dirname + '/../bin/unzip', ['-j', '-o', '-d', dir, path]);
-      var files=fs.readdirSync(dir);
-        files.forEach( function (name) {
-            var filePath = dir+"/"+name;
-            var stat = fs.statSync(filePath);
-            if (stat.isFile()) {
-                if(name.endsWith(".zip")){
-                  zipPath=filePath;
-                }
-                else{
-                  configPath=filePath;
-                }
-              }
-            });
-      await this.updateTestdata(zipPath,true);
-                  var str=await fs.readFile(configPath);
-                  var json=JSON.parse(str.toString());
+    let execFileAsync = util.promisify(require('child_process').execFile);
+    let dir = this.getTestdataPath();
+    await execFileAsync(__dirname + '/../bin/unzip', ['-j', '-o', '-d', dir, path]);
+    var files = fs.readdirSync(dir);
+    files.forEach(function (name) {
+      var filePath = dir + "/" + name;
+      var stat = fs.statSync(filePath);
+      if (stat.isFile()) {
+        if (name.endsWith(".zip")) {
+          zipPath = filePath;
+        }
+        else {
+          configPath = filePath;
+        }
+      }
+    });
+    await this.updateTestdata(zipPath, true);
+    var str = await fs.readFile(configPath);
+    var json = JSON.parse(str.toString());
 
-                  //if (!json.success) throw new ErrorMessage('题目加载失败。', null, json.error);
+    //if (!json.success) throw new ErrorMessage('题目加载失败。', null, json.error);
 
-                  //if (!json.obj.title.trim()) throw new ErrorMessage('题目名不能为空。');
-                  this.title = json.title;
-                  this.description = json.description;
-                  this.input_format = json.input_format;
-                  this.output_format = json.output_format;
-                  this.example = json.example;
-                  this.limit_and_hint = json.limit_and_hint;
-                  this.time_limit = json.time_limit;
-                  this.memory_limit = json.memory_limit;
-                  this.file_io = json.file_io;
-                  this.file_io_input_name = json.file_io_input_name;
-                  this.file_io_output_name = json.file_io_output_name;
-                  if (json.type) this.type = json.type;
+    //if (!json.obj.title.trim()) throw new ErrorMessage('题目名不能为空。');
+    this.title = json.title;
+    this.description = json.description;
+    this.input_format = json.input_format;
+    this.output_format = json.output_format;
+    this.example = json.example;
+    this.limit_and_hint = json.limit_and_hint;
+    this.time_limit = json.time_limit;
+    this.memory_limit = json.memory_limit;
+    this.file_io = json.file_io;
+    this.file_io_input_name = json.file_io_input_name;
+    this.file_io_output_name = json.file_io_output_name;
+    if (json.type) this.type = json.type;
 
-                  let validateMsg = await this.validate();
-                  if (validateMsg) throw new ErrorMessage('无效的题目数据配置。', null, validateMsg);
+    let validateMsg = await this.validate();
+    if (validateMsg) throw new ErrorMessage('无效的题目数据配置。', null, validateMsg);
 
-                  await this.save();
+    await this.save();
 
-                  let tagIDs = (await json.tags.mapAsync(name => ProblemTag.findOne({ where: { name: name } }))).filter(x => x).map(tag => tag.id);
-                    await this.setTags(tagIDs);
+    let tagIDs = (await json.tags.mapAsync(name => ProblemTag.findOne({ where: { name: name } }))).filter(x => x).map(tag => tag.id);
+    await this.setTags(tagIDs);
     //});
   }
   async updateTestdata(path, noLimit) {
@@ -282,7 +283,7 @@ export default class Problem extends Model {
       await fs.move(filepath, path.join(dir, filename), { overwrite: true });
 
       let execFileAsync = util.promisify(require('child_process').execFile);
-      try { await execFileAsync('dos2unix', [path.join(dir, filename)]); } catch (e) {}
+      try { await execFileAsync('dos2unix', [path.join(dir, filename)]); } catch (e) { }
 
       await fs.remove(this.getTestdataArchivePath());
     });
@@ -398,7 +399,7 @@ export default class Problem extends Model {
       user_id: user.id,
       problem_id: this.id
     };
-    
+
     if (acFirst) {
       where.status = 'Accepted';
 
@@ -437,13 +438,13 @@ export default class Problem extends Model {
       await syzoj.utils.lock(['Problem::UpdateStatistics', this.id, type], async () => {
         const [column, order] = statisticsTypes[type];
         const result = await JudgeState.createQueryBuilder()
-                                       .select([column, "id"])
-                                       .where("user_id = :user_id", { user_id })
-                                       .andWhere("status = :status", { status: "Accepted" })
-                                       .andWhere("problem_id = :problem_id", { problem_id: this.id })
-                                       .orderBy({ [column]: order })
-                                       .take(1)
-                                       .getRawMany();
+          .select([column, "id"])
+          .where("user_id = :user_id", { user_id })
+          .andWhere("status = :status", { status: "Accepted" })
+          .andWhere("problem_id = :problem_id", { problem_id: this.id })
+          .orderBy({ [column]: order })
+          .take(1)
+          .getRawMany();
         const resultRow = result[0];
 
         let toDelete = false;
@@ -512,19 +513,19 @@ export default class Problem extends Model {
     })).map(x => x.submission_id);
 
     statistics.judge_state = ids.length ? await JudgeState.createQueryBuilder()
-                                                          .whereInIds(ids)
-                                                          .orderBy(`FIELD(id,${ids.join(',')})`)
-                                                          .getMany()
-                                        : [];
+      .whereInIds(ids)
+      .orderBy(`FIELD(id,${ids.join(',')})`)
+      .getMany()
+      : [];
 
     const a = await JudgeState.createQueryBuilder()
-                              .select('score')
-                              .addSelect('COUNT(*)', 'count')
-                              .where('problem_id = :problem_id', { problem_id: this.id })
-                              .andWhere('type = 0')
-                              .andWhere('pending = false')
-                              .groupBy('score')
-                              .getRawMany();
+      .select('score')
+      .addSelect('COUNT(*)', 'count')
+      .where('problem_id = :problem_id', { problem_id: this.id })
+      .andWhere('type = 0')
+      .andWhere('pending = false')
+      .groupBy('score')
+      .getRawMany();
 
     let scoreCount = [];
     for (let score of a) {

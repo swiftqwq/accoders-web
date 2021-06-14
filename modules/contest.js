@@ -303,14 +303,14 @@ app.get('/contest/:id/', async (req, res) => {
             let judge_state = await JudgeState.findById(player.score_details[problem.problem.id].judge_id);
             problem.status = judge_state.status;
             if (!contest.ended && !await problem.problem.isAllowedEditBy(res.locals.user) && !['Compile Error', 'Waiting', 'Compiling'].includes(problem.status)) {
-              if(!problem.problem.pretest){
+              if(!problem.problem.pretests){
                 problem.status = 'Submitted';
               }
               else{
                 let tmp = [],status = "Pretests Passed"
                 judge_state.result.judge.subtasks.forEach(a => {
                     a.cases.forEach(b=>{
-                        if(problem.problem.pretest.includes(b.result.input.name)){
+                        if(problem.problem.pretests.includes(b.result.input.name)){
                             if(b.result.type != 1){
                                 status = "Pretests Failed";
                             }
@@ -624,7 +624,7 @@ app.get('/contest/submission/:id', async (req, res) => {
       judge.code = await syzoj.utils.highlight(judge.code, syzoj.languages[judge.language].highlight);
     }
 
-    displayConfig.pretest = judge.problem.pretest
+    displayConfig.pretests = judge.problem.pretests
 
     res.render('submission', {
       info: getSubmissionInfo(judge, displayConfig),
