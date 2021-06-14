@@ -42,7 +42,7 @@
     "format": "cpp"
   },
   "cpp17-clang": {
-    "show": "C++17 (Clang)",
+    "show": "C++17(Clang)",
     "highlight": "cpp",
     "version": "Clang 12.0.1",
     "editor": "cpp",
@@ -168,6 +168,27 @@
     "show": "C++11(O2)",
     "highlight": "cpp",
     "version": "GCC 10.2.0",
+    "editor": "cpp",
+    "format": "cpp"
+  },
+  "cpp20": {
+    "show": "C++20",
+    "highlight": "cpp",
+    "version": "GCC 10.2.0",
+    "editor": "cpp",
+    "format": "cpp"
+  },
+  "cpp20-o2": {
+    "show": "C++20(O2)",
+    "highlight": "cpp",
+    "version": "GCC 10.2.0",
+    "editor": "cpp",
+    "format": "cpp"
+  },
+  "cpp20-clang": {
+    "show": "C++20(Clang)",
+    "highlight": "cpp",
+    "version": "Clang 12.0.1",
     "editor": "cpp",
     "format": "cpp"
   }
