@@ -77,7 +77,11 @@ const processOverallResult = (source, config) => {
         return {
             compile: source.compile,
             judge: {
-                subtasks: source.judge.subtasks.map(st => ({
+                subtasks: source.judge.subtasks.filter(st => {
+                    return st.cases.filter(cs => {
+                        return config.pretests.includes(cs.result.input.name)
+                    }).length != 0
+                }).map(st => ({
                     score: st.score,
                     cases: st.cases.filter(cs => {
                         return config.pretests.includes(cs.result.input.name)

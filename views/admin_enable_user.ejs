@@ -50,9 +50,8 @@ this.adminPage = 'enable_user';
 <script>
 $('.remove_link').click(function () {
   let id=$(this).data('id');
-  $('.remove_link').click(function () {
-    $.post("/admin/enable_user", { id: id } );
-  });
+  $.post("/admin/enable_user", { id: id } );
+  location.reload();
 });
 </script>
 <% include admin_footer %>

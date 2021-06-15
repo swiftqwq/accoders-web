@@ -27,7 +27,8 @@ let filesize = require('file-size');
 let AsyncLock = require('async-lock');
 let JSDOM = require('jsdom').JSDOM;
 let renderer = require('./libs/renderer');
-const { getPreEmitDiagnostics } = require('typescript');
+const { getPreEmitDiagnostics, getConfigFileParsingDiagnostics } = require('typescript');
+const { config } = require('winston');
 
 module.exports = {
   resolvePath(s) {
@@ -151,9 +152,12 @@ module.exports = {
       let res = [];
       if (list.includes('data.yml')){
         let config = require('js-yaml').load((await fs.readFileAsync(dir + '/data.yml')));
-        return config.pretests.map(id=>{
-          return config.inputFile.split('#').join(String(id))
-        })
+        if(config.pretestsIndex){
+          let pretests = config.subtasks[config.pretestsIndex-1];
+          return pretests.cases.map(id => {
+            return config.inputFile.split('#').join(String(id))
+          });
+        }
       }
       
       return null;
@@ -214,7 +218,26 @@ module.exports = {
         let config = require('js-yaml').load((await fs.readFileAsync(dir + '/data.yml')));
 
         let input = config.inputFile, output = config.outputFile, answer = config.userOutput;
+        
+        if(config.pretestsIndex){
+          if(config.pretestsIndex < 1 || config.pretestsIndex > config.subtasks.length)
+            throw `非法的 pretests 编号：${config.pretestsIndex}`;
+          if(config.subtasks[config.pretestsIndex-1].score != 0)
+            throw `pretests 分数不为 0`;
+          if(config.subtasks[config.pretestsIndex-1].dependency && config.subtasks[config.pretestsIndex-1].dependency.length)
+            throw `pretests 不应依赖于其他子任务`;
+        }
 
+        let subtaskIndex = 0;
+        config.subtasks.forEach(st =>{
+          subtaskIndex++;
+          if(st.dependency){
+            st.dependency.forEach(dep=>{
+              if(dep >= subtaskIndex)
+                throw `子任务 ${subtaskIndex}：不合法的依赖关系`
+            })
+          }
+        })
         res = config.subtasks.map(st => ({
           score: st.score,
           type: st.type,
